@@ -1,0 +1,12 @@
+[submodule "external/jsoncpp"]
+	path = external/jsoncpp
+	url = https://github.com/open-source-parsers/jsoncpp
+[submodule "external/cpr"]
+	path = external/cpr
+	url = https://github.com/whoshuu/cpr
+[submodule "external/googletest"]
+	path = external/googletest
+	url = https://github.com/google/googletest
+[submodule "external/httpmockserver"]
+	path = external/httpmockserver
+	url = https://github.com/seznam/httpmockserver
