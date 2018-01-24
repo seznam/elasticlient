@@ -11,6 +11,7 @@
 #include <cstdint>
 
 
+/// The elasticlient namespace
 namespace elasticlient {
 
 
