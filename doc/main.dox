@@ -1,0 +1,81 @@
+/**
+ * \mainpage C++ elasticlient library
+ *
+ * C++ elasticlient library is simple library for simplified work with Elasticsearch in C++.
+ *
+ * You can find some basic information - how to build library and how to use it in
+ * <a href="https://github.com/seznam/elasticlient/blob/master/Readme.md">Readme.md</a>
+ * file.
+ *
+ * \section provided_classes Provided features
+ *
+ * \subsection helpercls_subsec Major provided classes
+ *
+ * - \ref elasticlient::Client - main library class which maintain connection to Elasticsearch
+ *   cluster and implements methods which can be called on the cluster such as search, get,
+ *   index, remove, etc. It takes care about choosing Elasticsearch node alive.
+ *
+ * - \ref elasticlient::Bulk - class which is able to perform bulk actions (Bulk API) on
+ *   \ref elasticlient::Client.
+ * - \ref elasticlient::Scroll - class which is able to use Scroll API on \ref elasticlient::Client.
+ * - \ref elasticlient::ScrollByScan - class which is able to use Scroll API with DEPRECATED
+     scan option on \ref elasticlient::Client.
+ *
+ * \subsection helperfunc_subsec Helper functions
+ *
+ * - \ref elasticlient::setLogFunction(LogCallback extLogFunction) - function for set custom
+ *   logging callback (for debugging purposes).
+ *
+ * \subsection helperenums_subsec Helper enumerations
+ *
+ * - \ref elasticlient::LogLevel - logging levels, used for definition of seriousness of the
+ *   log message
+ *
+ * \section how_to How to use the library
+ * \code
+#include <string>
+#include <vector>
+#include <iostream>
+#include <cpr/response.h>
+#include <elasticlient/client.h>
+
+
+int main() {
+    // Prepare Client for nodes of one Elasticsearch cluster
+    elasticlient::Client client({"http://elastic1.host:9200/"}); // last / is mandatory
+
+    std::string document {"{\"message\": \"Hello world!\"}"};
+
+    // Index the document, index "testindex" must be created before
+    cpr::Response indexResponse = client.index("testindex", "docType", "docId", document);
+    // 200
+    std::cout << indexResponse.status_code << std::endl;
+    // application/json; charset=UTF-8
+    std::cout << indexResponse.header["content-type"] << std::endl;
+    // Elasticsearch response (JSON text string)
+    std::cout << indexResponse.text << std::endl;
+
+    // Retrieve the document
+    cpr::Response retrievedDocument = client.get("testindex", "docType", "docId");
+    // 200
+    std::cout << retrievedDocument.status_code << std::endl;
+    // application/json; charset=UTF-8
+    std::cout << retrievedDocument.header["content-type"] << std::endl;
+    // Elasticsearch response (JSON text string) where key "_source" contain:
+    // {"message": "Hello world!"}
+    std::cout << retrievedDocument.text << std::endl;
+
+    // Remove the document
+    cpr::Response removedDocument = client.remove("testindex", "docType", "docId");
+    // 200
+    std::cout << removedDocument.status_code << std::endl;
+    // application/json; charset=UTF-8
+    std::cout << removedDocument.header["content-type"] << std::endl;
+    // Elasticsearch response (JSON text string)
+    std::cout << removedDocument.text << std::endl;
+
+    return 0;
+}
+ * \endcode
+ * You can also find this and more examples of basic usage of library <a href="https://github.com/seznam/elasticlient#how-to-use">here</a>.
+ */

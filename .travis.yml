@@ -1,0 +1,31 @@
+# This will run on Travis' 'new' container-based infrastructure
+sudo: false
+
+branches:
+  only:
+    - master
+
+# Environment variables
+env:
+  global:
+    - GH_REPO_REF: github.com/seznam/elasticlient.git
+
+# Install dependencies
+addons:
+  apt:
+    packages:
+      - doxygen
+      - graphviz
+
+script:
+  - cd doc
+  - doxygen Doxyfile
+
+deploy:
+  provider: pages
+  target-branch: gh-pages
+  skip-cleanup: true
+  github-token: $GITHUB_API_KEY
+  local_dir: doc/html
+  on:
+    branch: master

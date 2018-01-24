@@ -7,6 +7,7 @@
 #include <string>
 
 
+/// The elasticlient namespace
 namespace elasticlient {
 
 

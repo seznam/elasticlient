@@ -18,6 +18,7 @@ namespace cpr {
 }
 
 
+/// The elasticlient namespace
 namespace elasticlient {
 
 

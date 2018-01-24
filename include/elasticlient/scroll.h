@@ -17,6 +17,7 @@ namespace Json {
 }
 
 
+/// The elasticlient namespace
 namespace elasticlient {
 
 
