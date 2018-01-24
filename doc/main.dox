@@ -9,11 +9,11 @@
  *
  * \section provided_classes Provided features
  *
- * \subsection helpercls_subsec Major provided clases
+ * \subsection helpercls_subsec Major provided classes
  *
  * - \ref elasticlient::Client - main library class which maintain connection to Elasticsearch
- *   cluster and implements method which can be called on the cluster such as search, get,
- *   index, remove, etc. Also it takes care about choosing life Elasticsearch node.
+ *   cluster and implements methods which can be called on the cluster such as search, get,
+ *   index, remove, etc. It takes care about choosing Elasticsearch node alive.
  *
  * - \ref elasticlient::Bulk - class which is able to perform bulk actions (Bulk API) on
  *   \ref elasticlient::Client.
@@ -77,5 +77,5 @@ int main() {
     return 0;
 }
  * \endcode
- * You can  also find this and more examples of basic usage of library <a href="https://github.com/seznam/elasticlient#how-to-use">here</a>.
+ * You can also find this and more examples of basic usage of library <a href="https://github.com/seznam/elasticlient#how-to-use">here</a>.
  */

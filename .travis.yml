@@ -15,8 +15,6 @@ addons:
   apt:
     packages:
       - doxygen
-      - doxygen-doc
-      - doxygen-gui
       - graphviz
 
 script:
@@ -28,6 +26,6 @@ deploy:
   target-branch: gh-pages
   skip-cleanup: true
   github-token: $GITHUB_API_KEY
-  local_dir: html
+  local_dir: doc/html
   on:
-    branch: adding-documentation
+    branch: master
