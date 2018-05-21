@@ -83,6 +83,11 @@ bool Client::Implementation::performRequestOnCurrentHost(Client::HTTPMethod meth
 {
     const std::string entireUrl = hostUrlList[currentHostIndex] + urlPath;
     session.SetUrl(cpr::Url(entireUrl));
+    cpr::Header header;
+    if (!body.empty()) {
+        header["Content-Type"] = "application/json; charset=utf-8";
+    }
+    session.SetHeader(header);
     session.SetBody(cpr::Body(body));
 
     switch (method) {
