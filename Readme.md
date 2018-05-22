@@ -24,7 +24,8 @@ The library is based on [C++ Requests: Curl for People](https://github.com/whosh
 ###### Step 1
 Clone or download this repository to some directory and go to this directory.
 ```sh
-git clone https://github.com/seznam/elasticlient
+export Elasticlient_DIST=${PWD}/DIST
+git clone https://github.com/benlabbe/elasticlient
 cd elasticlient
 ```
 
@@ -37,13 +38,18 @@ git submodule update --init --recursive
 ###### Step 3
 Build the library:
 ```sh
-mkdir build
-cd build
-cmake ..
-make
-make test  # Optional, will run elasticlient tests
+mkdir build && cd build
+cmake -D CMAKE_BUILD_TYPE=RelWithDebInfo \
+      -D JSONCPP_WITH_CMAKE_PACKAGE=YES \
+	  -D JSONCPP_WITH_PKGCONFIG_SUPPORT=NO \
+	  -D BUILD_ELASTICLIENT_TESTS=NO \
+	  -D ELASTICLIENT_WITH_CMAKE_PACKAGE=YES \
+	  -D CMAKE_INSTALL_PREFIX=${Elasticlient_DIST} ..
+make -j4 && make install
 ```
+
 Following CMake configuration variables may be passed right before `..` in `cmake ..` command.
+
 * `-DUSE_ALL_SYSTEM_LIBS=YES`  - use all dependencies from system (default=NO)
 * `-DUSE_SYSTEM_CPR=YES`  - use C++ Requests library from system (default=NO)
 * `-DUSE_SYSTEM_JSONCPP=YES`  - use JsonCpp library from system (default=NO)

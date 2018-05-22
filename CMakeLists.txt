@@ -61,6 +61,8 @@ link_directories(${LIBRARY_OUTPUT_PATH})
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/")
 message(STATUS "CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}")
 
+get_variable(ELASTICLIENT_WITH_CMAKE_PACKAGE "Will export the elasticlient library as a cmake package." NO YES)
+
 # Dependencies are solved in external subdirectory
 add_subdirectory(external)
 
@@ -83,3 +85,23 @@ endif()
 install(DIRECTORY ${ELASTICLIENT_INCLUDE_DIR}/elasticlient
         DESTINATION include
         FILES_MATCHING PATTERN "*.h")
+
+
+# Create the file ElasticlientConfig.cmake to be deployed in ${ELASTICLIENT_DIST}/share/elasticlient
+# ----------------------------------------------------------------------------
+# It contains cmake useful variables to use Elasticlient as external library
+# (include path, link path, version... including access to Elasticlient external
+# dependencies such as Cpr and JsonCpp)
+# It also simply allows a prog to look for the Elasticlient distribution.
+# For a command "find_package(FOO)", CMake will look at the directory
+# /usr/share|lib/FOO/FOOConfig.cmake
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/ElasticlientConfig.cmake.in" "${CMAKE_BINARY_DIR}/unix-install/ElasticlientConfig.cmake" IMMEDIATE @ONLY)
+install(FILES ${CMAKE_BINARY_DIR}/unix-install/ElasticlientConfig.cmake DESTINATION ${CMAKE_INSTALL_PREFIX}/share/elasticlient)
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/ElasticlientConfig-version.cmake.in" "${CMAKE_BINARY_DIR}/unix-install/ElasticlientConfig-version.cmake" IMMEDIATE @ONLY)
+install(FILES ${CMAKE_BINARY_DIR}/unix-install/ElasticlientConfig-version.cmake DESTINATION ${CMAKE_INSTALL_PREFIX}/share/elasticlient)
+
+
+# ------------------------------------------------------------------------------
+# Final messages
+# ------------------------------------------------------------------------------
+message(STATUS "Install path:" "${CMAKE_INSTALL_PREFIX}")
