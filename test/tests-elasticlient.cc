@@ -49,12 +49,27 @@ class HTTPMock: public httpmock::MockServer {
             const std::string &method,
             const std::string &data,
             const std::vector<UrlArg> &,
-            const std::vector<Header> &)
+            const std::vector<Header> &headers)
     {
         LOG(LogLevel::INFO, "Mock HTTP `%s` method `%s` called with %lu bytes of data.",
             method.c_str(), url.c_str(), data.size());
         LOG(LogLevel::INFO, "Mock HTTP data: `%s`.", data.c_str());
 
+        // Strictly check when JSON content type header was sent when body is not empty
+        if (!data.empty()) {
+            bool jsonHeaderSent = false;
+            for (const Header &header : headers) {
+                if (header.key == "Content-Type"
+                    && header.value == "application/json; charset=utf-8")
+                {
+                    jsonHeaderSent = true;
+                    break;
+                }
+            }
+            if (!jsonHeaderSent) {
+                return Response(500, "JSON HTTP header not found when body was set!");
+            }
+        }
 
         // Mocked basic search
         if (method =="POST" && matchesPrefix(url, "/indexA/typeA/_search")) {
