@@ -85,6 +85,17 @@ class SameIndexBulkData: public IBulkData {
             const std::string &docType, const std::string &id,
             const std::string &doc);
 
+    /**
+     * Add update document request to the bulk.
+     * \param docType document type (as specified in mapping).
+     * \param id document ID.
+     * \param doc Json document to index. Must not contain newline char.
+     * \return true if bulk has reached its desired capacity.
+     */
+    bool updateDocument(
+            const std::string &docType, const std::string &id,
+            const std::string &doc);
+
     /// Clear bulk (size() == 0 after this).
     void clear();
 

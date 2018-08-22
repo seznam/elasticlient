@@ -68,6 +68,15 @@ bool SameIndexBulkData::createDocument(
     return impl->data.size() >= impl->size;
 }
 
+bool SameIndexBulkData::updateDocument(
+        const std::string &docType, const std::string &id, const std::string &doc)
+{
+    validateDocument(doc, id);
+    impl->data.emplace_back(createControl("update", docType, id), doc);
+    // return true if bulk has reached its desired capacity
+    return impl->data.size() >= impl->size;
+}
+
 
 void SameIndexBulkData::clear() {
     impl->data.resize(0);
