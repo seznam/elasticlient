@@ -39,19 +39,24 @@ class RandomUIntGenerator {
 class Client::Implementation {
     const std::vector<std::string> hostUrlList;
     cpr::Session session;
+    cpr::Authentication auth;
     uint32_t currentHostIndex, failCounter;
     RandomUIntGenerator uintGenerator;
 
     friend class Client;
 
   public:
-    Implementation(const std::vector<std::string> &hostUrlList, std::int32_t timeout)
-      : hostUrlList(hostUrlList), session(), currentHostIndex(0), failCounter(0), uintGenerator()
+    Implementation(const std::vector<std::string> &hostUrlList,
+                    const std::string &user,
+                    const std::string &password,
+                    std::int32_t timeout)
+      : hostUrlList(hostUrlList), session(), auth(user, password), currentHostIndex(0), failCounter(0), uintGenerator()
     {
         if (hostUrlList.empty()) {
             throw std::runtime_error("Hosts URL list can not be empty.");
         }
         session.SetTimeout(timeout);
+        session.SetAuth(auth);
         resetCurrentHostInfo();
     }
 

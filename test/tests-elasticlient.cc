@@ -229,6 +229,9 @@ TEST_F(ElasticlientTest, bulkInternal) {
     ASSERT_EQ(
         "{\"index\": {\"_type\": \"type1\", \"_id\": \"1\"}}",
         createControl("index", "type1", "1"));
+    ASSERT_EQ(
+        "{\"index\": {\"_type\": \"type1\"}}",
+        createControl("index", "type1", ""));
 
     // Create bulk with two elements
     SameIndexBulkData bulk("my_index");

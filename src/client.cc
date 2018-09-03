@@ -59,8 +59,10 @@ namespace elasticlient {
 
 
 Client::Client(const std::vector<std::string> &hostUrlList,
+               const std::string &user,
+               const std::string &password,
                std::int32_t timeout)
-  : impl(new Implementation(hostUrlList, timeout))
+  : impl(new Implementation(hostUrlList, user, password, timeout))
 {}
 
 
