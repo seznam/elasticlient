@@ -54,6 +54,8 @@ class Scroll {
      * \param timeout Elasticsearch node connection timeout.
      */
     explicit Scroll(const std::vector<std::string> &hostUrlList,
+                    const std::string &user,
+                    const std::string &password,
                     std::size_t scrollSize = 100,
                     const std::string &scrollTimeout = "1m",
                     std::int32_t connectionTimeout = 6000);
@@ -104,6 +106,8 @@ class ScrollByScan : public Scroll {
 
     /// \see Scroll
     explicit ScrollByScan(const std::vector<std::string> &hostUrlList,
+                          const std::string &user = "",
+                          const std::string &password = "",
                           std::size_t scrollSize = 100,
                           const std::string &scrollTimeout = "1m",
                           int primaryShardsCount = 0,

@@ -118,7 +118,9 @@ class Bulk {
      * \param connectionTimeout Elasticsearch node connection timeout.
      */
     Bulk(const std::vector<std::string> &hostUrlList,
-         std::int32_t connectionTimeout);
+         const std::string &user = "",
+         const std::string &password = "",
+         std::int32_t connectionTimeout = 6000);
     /**
      * Destroy bulk indexer, writing documents not yet indexed, discarding
      * possible errors. If you are interested in errors, call flush() and

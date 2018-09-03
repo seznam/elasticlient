@@ -99,9 +99,11 @@ Bulk::Bulk(const std::shared_ptr<Client> &client)
 
 
 Bulk::Bulk(const std::vector<std::string> &hostUrlList,
+           const std::string &user,
+           const std::string &password,
            std::int32_t connectionTimeout)
   : impl(new Implementation(
-              std::make_shared<Client>(hostUrlList, connectionTimeout)))
+              std::make_shared<Client>(hostUrlList, user, password, connectionTimeout)))
 {}
 
 

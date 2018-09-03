@@ -23,11 +23,13 @@ Scroll::Scroll(const std::shared_ptr<Client> &client,
 
 
 Scroll::Scroll(const std::vector<std::string> &hostUrlList,
+               const std::string &user,
+               const std::string &password,
                std::size_t scrollSize,
                const std::string &scrollTimeout,
                std::int32_t connectionTimeout)
   : impl(new Implementation(
-      std::make_shared<Client>(hostUrlList, connectionTimeout), scrollSize, scrollTimeout))
+      std::make_shared<Client>(hostUrlList, user, password, connectionTimeout), scrollSize, scrollTimeout))
 {}
 
 
@@ -234,11 +236,13 @@ ScrollByScan::ScrollByScan(const std::shared_ptr<Client> &client,
 
 
 ScrollByScan::ScrollByScan(const std::vector<std::string> &hostUrlList,
+                           const std::string &user,
+                           const std::string &password,
                            std::size_t scrollSize,
                            const std::string &scrollTimeout,
                            int primaryShardsCount,
                            std::int32_t connectionTimeout)
-  : Scroll(hostUrlList, scrollSize, scrollTimeout, connectionTimeout)
+  : Scroll(hostUrlList, user, password, scrollSize, scrollTimeout, connectionTimeout)
 {
     if (primaryShardsCount != 0) {
         impl->scrollSize = (std::size_t) scrollSize / primaryShardsCount;
