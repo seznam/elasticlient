@@ -51,7 +51,8 @@ class Client {
      * \param timeout      Elastic node connection timeout.
      */
     explicit Client(const std::vector<std::string> &hostUrlList,
-                    std::int32_t timeout = 6000);
+                    std::int32_t timeout = 6000,
+                    const std::initializer_list<std::pair<const std::string, std::string>>& proxyUrlList = {});
 
     Client(Client &&);
 
