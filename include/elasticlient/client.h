@@ -55,7 +55,10 @@ class Client {
 
     explicit Client(const std::vector<std::string> &hostUrlList,
                     std::int32_t timeout,
-                    const std::initializer_list<std::pair<const std::string, std::string>>& proxyUrlList);
+    explicit Client(
+        const std::vector<std::string> &hostUrlList,
+        std::int32_t timeout,
+        const std::initializer_list<std::pair<const std::string, std::string>>& proxyUrlList);
 
     Client(Client &&);
 
