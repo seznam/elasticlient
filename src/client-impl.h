@@ -57,7 +57,6 @@ class Client::Implementation {
         if (proxyUrlList.size()) {
             session.SetProxies(cpr::Proxies(proxyUrlList));
         }
-        session.SetProxies(proxies);
         session.SetTimeout(timeout);
         resetCurrentHostInfo();
     }

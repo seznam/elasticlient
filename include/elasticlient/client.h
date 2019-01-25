@@ -60,8 +60,6 @@ class Client {
      * \param timeout       Elastic node connection timeout.
      * \param proxyUrlList  List of used HTTP proxies.
      */
-    explicit Client(const std::vector<std::string> &hostUrlList,
-                    std::int32_t timeout,
     explicit Client(
         const std::vector<std::string> &hostUrlList,
         std::int32_t timeout,
