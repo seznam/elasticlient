@@ -53,7 +53,10 @@ class Client::Implementation {
         if (hostUrlList.empty()) {
             throw std::runtime_error("Hosts URL list can not be empty.");
         }
-        cpr::Proxies proxies(proxyUrlList);
+
+        if (proxyUrlList.size()) {
+            session.SetProxies(cpr::Proxies(proxyUrlList));
+        }
         session.SetProxies(proxies);
         session.SetTimeout(timeout);
         resetCurrentHostInfo();
