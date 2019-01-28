@@ -57,12 +57,16 @@ void fillRoutingInUrlPath(const std::string &routing, std::ostringstream &urlPat
 
 namespace elasticlient {
 
-
 Client::Client(const std::vector<std::string> &hostUrlList,
                std::int32_t timeout)
   : impl(new Implementation(hostUrlList, timeout))
 {}
 
+Client::Client(const std::vector<std::string> &hostUrlList,
+               std::int32_t timeout,
+               const std::initializer_list<std::pair<const std::string, std::string>>& proxyUrlList)
+  : impl(new Implementation(hostUrlList, timeout, proxyUrlList))
+{}
 
 Client::Client(Client &&) = default;
 

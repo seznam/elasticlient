@@ -53,6 +53,18 @@ class Client {
     explicit Client(const std::vector<std::string> &hostUrlList,
                     std::int32_t timeout = 6000);
 
+    /**
+     * Initialize the Client.
+     * \param hostUrlList   Vector of URLs of Elasticsearch nodes in one Elasticsearch cluster.
+     *  Each URL in vector should end by "/".
+     * \param timeout       Elastic node connection timeout.
+     * \param proxyUrlList  List of used HTTP proxies.
+     */
+    explicit Client(
+        const std::vector<std::string> &hostUrlList,
+        std::int32_t timeout,
+        const std::initializer_list<std::pair<const std::string, std::string>>& proxyUrlList);
+
     Client(Client &&);
 
     ~Client();

@@ -204,6 +204,16 @@ int main() {
 }
 ```
 
+## How to connect via http proxy
+
+Just use different constructor.
+```cpp
+elasticlient::Client client(
+    {"http://elastic1.host:9200/"}, 
+    6000,
+    {{"http", "http://proxy.host:8080"},{"https", "https://proxy.host:8080"}});
+```
+
 ## License
 Elasticlient is licensed under the MIT License (MIT). Only the [cmake/Modules/FindJsonCpp.cmake](cmake/Modules/FindJsonCpp.cmake) is originally licensed
 under [Boost Software License](cmake/Modules/LICENSE_1_0.txt), for more information see header of the file.

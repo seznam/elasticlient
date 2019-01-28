@@ -45,11 +45,17 @@ class Client::Implementation {
     friend class Client;
 
   public:
-    Implementation(const std::vector<std::string> &hostUrlList, std::int32_t timeout)
+    Implementation(const std::vector<std::string> &hostUrlList,
+            std::int32_t timeout,
+            const std::initializer_list<std::pair<const std::string, std::string>>& proxyUrlList = {})
       : hostUrlList(hostUrlList), session(), currentHostIndex(0), failCounter(0), uintGenerator()
     {
         if (hostUrlList.empty()) {
             throw std::runtime_error("Hosts URL list can not be empty.");
+        }
+
+        if (proxyUrlList.size()) {
+            session.SetProxies(cpr::Proxies(proxyUrlList));
         }
         session.SetTimeout(timeout);
         resetCurrentHostInfo();
