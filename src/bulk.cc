@@ -163,6 +163,7 @@ std::size_t Bulk::perform(const IBulkData &bulk) {
 void Bulk::Implementation::processResult(
         const std::string &result, std::size_t size)
 {
+    // TODO parse this using rapidjson and remove jsoncpp dependency.
     Json::Value root;
     Json::Reader reader;
     // parse elastic json result without comments (false at the end)

@@ -10,7 +10,6 @@
 #include <string>
 #include <vector>
 #include <stdexcept>
-#include <json/json.h>
 #include "elasticlient/client.h"
 
 
@@ -71,10 +70,7 @@ class Scroll::Implementation {
     }
 
     /// Run request on Client
-    bool run(const std::string &commonUrlPart, const std::string &body, Json::Value &parsedResult);
-
-    ///Parse Elasticsearch HTTP \p result into \p parsedResult
-    bool parseResult(const std::string &result, Json::Value &parsedResult);
+    bool run(const std::string &commonUrlPart, const std::string &body, std::unique_ptr<JsonResult> &parsedResult);
 };
 
 

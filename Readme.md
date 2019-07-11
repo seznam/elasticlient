@@ -12,6 +12,7 @@ The library is based on [C++ Requests: Curl for People](https://github.com/whosh
 ## Dependencies
 * [C++ Requests: Curl for People](https://github.com/whoshuu/cpr)
 * [JsonCpp](https://github.com/open-source-parsers/jsoncpp)
+* [RapidJSON](http://rapidjson.org/)
 * [Google Test](https://github.com/google/googletest)
 * Only for tests: [C++ HTTP mock server library](https://github.com/seznam/httpmockserver)
 

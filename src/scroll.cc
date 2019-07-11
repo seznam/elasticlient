@@ -7,9 +7,9 @@
 
 #include <sstream>
 #include <memory>
-#include <json/json.h>
 #include <cpr/cpr.h>
 #include "logging-impl.h"
+#include "elasticlient/scroll-parser.h"
 
 
 namespace elasticlient {
@@ -57,78 +57,14 @@ void Scroll::Implementation::ScrollParams::clear() {
 }
 
 
-bool Scroll::Implementation::parseResult(const std::string &result, Json::Value &parsedResult) {
-    Json::Value root;
-    Json::Reader reader;
-    // parse elastic json result without comments (false at the end)
-    if (!reader.parse(result, root, false)) {
-        // something is weird, ony report error
-        LOG(LogLevel::WARNING, "Error when parsing JSON Elastic result.");
-        return false;
-    }
-
-    if (root.isMember("error")) {
-        const Json::Value &error = root["error"];
-        if (!error.isBool() || error.asBool()) {
-            LOG(LogLevel::WARNING, "An Elastic error occured while getting scroll result. '%s'",
-                result.c_str());
-            return false;
-        }
-    }
-
-    if (root.isMember("timed_out")) {
-        if (!root["timed_out"].isBool() || root["timed_out"].asBool()) {
-            LOG(LogLevel::WARNING, "The Scroll has been timeouted. '%s'", result.c_str());
-            return false;
-        }
-    }
-
-    if (root.isMember("_shards") && root["_shards"].isObject()) {
-        const Json::Value &shards = root["_shards"];
-        if (shards.isMember("failed") && shards["failed"].isInt()) {
-            if (shards["failed"].asInt() > 0) {
-                LOG(LogLevel::WARNING, "Results not obtained from all shards (failed=%d). '%s'",
-                    shards["failed"].asInt(), result.c_str());
-                return false;
-            }
-        } else {
-            LOG(LogLevel::WARNING, "In result is no information about failed shards. '%s'",
-                result.c_str());
-            return false;
-        }
-    } else {
-        LOG(LogLevel::WARNING, "In result is no information about shards.");
-        return false;
-    }
-
-    // everything is alright, errors==false, results from all shards obtained
-    if (root.isMember("hits") && root["hits"].isObject()) {
-        const Json::Value &hits = root["hits"];
-        if (hits.isMember("hits") && hits["hits"].isArray()) {
-            if (root.isMember("_scroll_id") && root["_scroll_id"].isString()) {
-                // propagate result and store scrollId in member variable
-                parsedResult = hits;
-                scrollParameters.scrollId = root["_scroll_id"].asString();
-                return true;
-            }
-            LOG(LogLevel::WARNING, "In result is no _scroll_id.");
-
-            return false;
-        }
-    }
-    LOG(LogLevel::WARNING, "Scroll result is corrupted.");
-    return false;
-}
-
-
 bool Scroll::Implementation::run(
-        const std::string &commonUrlPart, const std::string &body, Json::Value &parsedResult)
+        const std::string &commonUrlPart, const std::string &body, std::unique_ptr<elasticlient::JsonResult> &parsedResult)
 {
     try {
         const cpr::Response r = client->performRequest(Client::HTTPMethod::POST,
                                                        commonUrlPart, body);
         if (r.status_code / 100 == 2 or r.status_code == 404) {
-            return parseResult(r.text, parsedResult);
+            return parseScrollResult(r.text, parsedResult, scrollParameters.scrollId);
         }
 
     } catch(const ConnectionException &ex) {
@@ -152,7 +88,7 @@ void Scroll::init(
 }
 
 
-bool Scroll::createScroll(Json::Value &parsedResult) {
+bool Scroll::createScroll(std::unique_ptr<elasticlient::JsonResult> &parsedResult) {
     Implementation::ScrollParams &scrollParameters = impl->scrollParameters;
     std::ostringstream urlPart;
     urlPart << scrollParameters.indexName << "/" << scrollParameters.docType << "/_search?scroll="
@@ -170,7 +106,7 @@ bool Scroll::createScroll(Json::Value &parsedResult) {
 }
 
 
-bool Scroll::next(Json::Value &parsedResult) {
+bool Scroll::next(std::unique_ptr<elasticlient::JsonResult> &parsedResult) {
     Implementation::ScrollParams &scrollParameters = impl->scrollParameters;
 
     if (!impl->isInitialized()) {
@@ -249,7 +185,7 @@ ScrollByScan::ScrollByScan(const std::vector<std::string> &hostUrlList,
 ScrollByScan::ScrollByScan(ScrollByScan &&) = default;
 
 
-bool ScrollByScan::createScroll(Json::Value &parsedResult) {
+bool ScrollByScan::createScroll(std::unique_ptr<elasticlient::JsonResult> &parsedResult) {
     Implementation::ScrollParams &scrollParameters = impl->scrollParameters;
 
     std::ostringstream urlPart;

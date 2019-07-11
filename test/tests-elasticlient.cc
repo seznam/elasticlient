@@ -6,7 +6,8 @@
 #include <sstream>
 #include <iostream>
 #include <vector>
-#include <json/json.h>
+#include <rapidjson/document.h>
+#include <rapidjson/writer.h>
 #include <cpr/cpr.h>
 #include <httpmockserver/mock_server.h>
 #include <httpmockserver/test_environment.h>
@@ -133,35 +134,34 @@ class HTTPMock: public httpmock::MockServer {
                                      const int numOfHits,
                                      const int shardsSuccessful,
                                      const int shardsFailed,
-                                     const Json::Value *error = nullptr) const
+                                     rapidjson::Value *error = nullptr) const
     {
-        Json::Value response;
-        response["_scroll_id"] = scrollId;
-        response["took"] = 22;
-        response["timed_out"] = timedOut;
-        response["_shards"] = Json::Value();
-        response["_shards"]["total"] = shardsSuccessful + shardsFailed;
-        response["_shards"]["successful"] = shardsSuccessful;
-        response["_shards"]["failed"] = shardsFailed;
-        response["hits"] = Json::Value();
-        response["hits"]["total"] = numOfHits;
-        response["hits"]["hits"] = Json::arrayValue;
+        rapidjson::Document response;
+        response.SetObject();
+        response.AddMember("_scroll_id", rapidjson::Value(scrollId.c_str(), response.GetAllocator()),
+                response.GetAllocator());
+        response.AddMember("took", 22, response.GetAllocator());
+        response.AddMember("timed_out", timedOut, response.GetAllocator());
+        response.AddMember("_shards", rapidjson::kObjectType, response.GetAllocator());
+        response["_shards"].AddMember("total", shardsSuccessful + shardsFailed,
+                                      response.GetAllocator());
+        response["_shards"].AddMember("successful", shardsSuccessful,
+                                      response.GetAllocator());
+        response["_shards"].AddMember("failed", shardsFailed, response.GetAllocator());
+        response.AddMember("hits", rapidjson::kObjectType, response.GetAllocator());
+        response["hits"].AddMember("total", numOfHits, response.GetAllocator());
+        response["hits"].AddMember("hits", rapidjson::kArrayType, response.GetAllocator());
         for (int i = 0; i < numOfHits; i++) {
-            response["hits"]["hits"].append(Json::Value());
+            response["hits"]["hits"].PushBack(rapidjson::kObjectType, response.GetAllocator());
         }
-        if(error != nullptr) {
-            response["error"] = error;
+        if (error != nullptr) {
+            response.AddMember("error", *error, response.GetAllocator());
         }
-        Json::FastWriter writer;
 
-        return writer.write(response);
-    }
-
-    Json::Value parseJSONData(const std::string &data) const {
-        Json::Value root;
-        Json::Reader reader;
-        reader.parse(data, root, false);
-        return root;
+        rapidjson::StringBuffer buffer;
+        rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+        response.Accept(writer);
+        return buffer.GetString();
     }
 };
 
@@ -236,7 +236,7 @@ TEST_F(ElasticlientTest, bulkInternal) {
     bulk.indexDocument("my_type", "id1", "{data1}");
     ASSERT_FALSE(bulk.empty());
     bulk.createDocument("my_type", "id2", "{data2}");
-    ASSERT_EQ(2, bulk.size());
+    ASSERT_EQ(2UL, bulk.size());
 
     // expect newline-delimited output
     const std::string expected =
@@ -267,23 +267,23 @@ TEST_F(ElasticlientTest, bulkBasics) {
 
 TEST_F(ElasticlientTest, scroll) {
     Scroll scrollInstance(std::make_shared<Client>(getMockedHosts()), 100, "1m");
-    Json::Value hits;
+    std::unique_ptr<elasticlient::JsonResult> result;
     scrollInstance.init("test_scroll_ok*", "fake_index", "{}");
-    ASSERT_TRUE(scrollInstance.next(hits));
-    ASSERT_EQ(2, hits["hits"].size());
-    ASSERT_TRUE(scrollInstance.next(hits));
-    ASSERT_EQ(3, hits["hits"].size());
-    ASSERT_TRUE(scrollInstance.next(hits));
-    ASSERT_EQ(0, hits["hits"].size());
-    ASSERT_FALSE(scrollInstance.next(hits));
+    ASSERT_TRUE(scrollInstance.next(result));
+    ASSERT_EQ(2UL, result->document["hits"]["hits"].Size());
+    ASSERT_TRUE(scrollInstance.next(result));
+    ASSERT_EQ(3UL, result->document["hits"]["hits"].Size());
+    ASSERT_TRUE(scrollInstance.next(result));
+    ASSERT_EQ(0UL, result->document["hits"]["hits"].Size());
+    ASSERT_FALSE(scrollInstance.next(result));
     scrollInstance.clear();
     scrollInstance.init("test_scroll_ok*", "fake_index", "{}");
-    ASSERT_TRUE(scrollInstance.next(hits));
-    ASSERT_EQ(2, hits["hits"].size());
-    ASSERT_TRUE(scrollInstance.next(hits));
-    ASSERT_EQ(3, hits["hits"].size());
+    ASSERT_TRUE(scrollInstance.next(result));
+    ASSERT_EQ(2UL, result->document["hits"]["hits"].Size());
+    ASSERT_TRUE(scrollInstance.next(result));
+    ASSERT_EQ(3UL, result->document["hits"]["hits"].Size());
     scrollInstance.clear();
-    ASSERT_FALSE(scrollInstance.next(hits));
+    ASSERT_FALSE(scrollInstance.next(result));
 }
 
 

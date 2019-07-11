@@ -9,16 +9,20 @@
 #include <memory>
 #include <vector>
 #include <cstdint>
-
-
-// Forward Json::Value existence.
-namespace Json {
-    class Value;
-}
+#include <rapidjson/document.h>
 
 
 /// The elasticlient namespace
 namespace elasticlient {
+
+
+/**
+ * Scroll result.
+ */
+struct JsonResult {
+    /// Parsed document. On successful scroll it contains ["hits"]["hits"] array.
+    rapidjson::Document document;
+};
 
 
 // Forward Client class existence.
@@ -80,14 +84,14 @@ class Scroll {
      * \return true if okay
      * \return false on error
      */
-    bool next(Json::Value &parsedResult);
+    bool next(std::unique_ptr<JsonResult> &parsedResult);
 
     /// Return Client class with current config.
     const std::shared_ptr<Client> &getClient() const;
 
   protected:
     /// Creates new scroll - obtain scrollId and parsedResult
-    virtual bool createScroll(Json::Value &parsedResult);
+    virtual bool createScroll(std::unique_ptr<JsonResult> &parsedResult);
 };
 
 
@@ -116,7 +120,7 @@ class ScrollByScan : public Scroll {
      * make two Elasticsearch calls one for obtain scrollId and second for obtain
      * first bulk of results.
      */
-    virtual bool createScroll(Json::Value &parsedResult) override;
+    virtual bool createScroll(std::unique_ptr<JsonResult> &parsedResult) override;
 };
 
 
