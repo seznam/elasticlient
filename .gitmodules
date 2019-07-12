@@ -1,6 +1,6 @@
-[submodule "external/jsoncpp"]
-	path = external/jsoncpp
-	url = https://github.com/open-source-parsers/jsoncpp
+[submodule "external/rapidjson"]
+	path = external/rapidjson
+	url = https://github.com/Tencent/rapidjson
 [submodule "external/cpr"]
 	path = external/cpr
 	url = https://github.com/whoshuu/cpr

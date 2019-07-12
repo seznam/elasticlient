@@ -11,7 +11,6 @@ The library is based on [C++ Requests: Curl for People](https://github.com/whosh
 
 ## Dependencies
 * [C++ Requests: Curl for People](https://github.com/whoshuu/cpr)
-* [JsonCpp](https://github.com/open-source-parsers/jsoncpp)
 * [RapidJSON](http://rapidjson.org/)
 * [Google Test](https://github.com/google/googletest)
 * Only for tests: [C++ HTTP mock server library](https://github.com/seznam/httpmockserver)
@@ -47,7 +46,7 @@ make test  # Optional, will run elasticlient tests
 Following CMake configuration variables may be passed right before `..` in `cmake ..` command.
 * `-DUSE_ALL_SYSTEM_LIBS=YES`  - use all dependencies from system (default=NO)
 * `-DUSE_SYSTEM_CPR=YES`  - use C++ Requests library from system (default=NO)
-* `-DUSE_SYSTEM_JSONCPP=YES`  - use JsonCpp library from system (default=NO)
+* `-DUSE_SYSTEM_RAPIDJSON=YES`  - use RapidJson library from system (default=NO)
 * `-DUSE_SYSTEM_GTEST=YES`  - use Google Test library from system (default=NO)
 * `-DUSE_SYSTEM_HTTPMOCKSERVER=YES`  - use C++ HTTP mock server library from system (default=NO)
 * `-DBUILD_ELASTICLIENT_TESTS=YES`  - build elasticlient library tests (default=YES)
@@ -216,5 +215,4 @@ elasticlient::Client client(
 ```
 
 ## License
-Elasticlient is licensed under the MIT License (MIT). Only the [cmake/Modules/FindJsonCpp.cmake](cmake/Modules/FindJsonCpp.cmake) is originally licensed
-under [Boost Software License](cmake/Modules/LICENSE_1_0.txt), for more information see header of the file.
+Elasticlient is licensed under the MIT License (MIT).

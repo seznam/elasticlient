@@ -1,6 +1,6 @@
 include_directories(${ELASTICLIENT_INCLUDE_DIRS}
                     ${CPR_INCLUDE_DIRS}
-                    ${JSONCPP_INCLUDE_DIRS})
+                    ${RapidJSON_INCLUDE_DIRS})
 
 add_library(${ELASTICLIENT_LIBRARY} SHARED
             client.cc
@@ -14,7 +14,6 @@ add_library(${ELASTICLIENT_LIBRARY} SHARED
             "${ELASTICLIENT_INCLUDE_DIR}/elasticlient/scroll.h")
 
 target_link_libraries(${ELASTICLIENT_LIBRARY}
-                      ${JSONCPP_LIBRARIES}
                       ${CPR_LIBRARIES})
 
 set_target_properties(${ELASTICLIENT_LIBRARY}

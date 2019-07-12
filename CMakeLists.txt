@@ -43,12 +43,12 @@ get_variable(BUILD_ELASTICLIENT_EXAMPLE "Build exmaple program which using elast
 
 get_variable(USE_ALL_SYSTEM_LIBS "Will found all libraries in system." NO YES)
 if(USE_ALL_SYSTEM_LIBS)
-    set(USE_SYSTEM_JSONCPP YES)
+    set(USE_SYSTEM_RAPIDJSON YES)
     set(USE_SYSTEM_CPR YES)
     set(USE_SYSTEM_HTTPMOCKSERVER YES)
     set(USE_SYSTEM_GTEST YES)
 else()
-    get_variable(USE_SYSTEM_JSONCPP "Will found JsonCpp library in system." NO YES)
+    get_variable(USE_SYSTEM_RAPIDJSON "Will found RapidJson library in system." NO YES)
     get_variable(USE_SYSTEM_CPR "Will found CPR library in system." NO YES)
     get_variable(USE_SYSTEM_HTTPMOCKSERVER "Will found HTTPMockServer library in system." NO YES)
     get_variable(USE_SYSTEM_GTEST "Will found GTest library in system." NO YES)
@@ -65,9 +65,9 @@ message(STATUS "CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}")
 add_subdirectory(external)
 
 set(ELASTICLIENT_LIBRARY elasticlient CACHE INTERNAL "")
-set(ELASTICLIENT_LIBRARIES ${ELASTICLIENT_LIBRARY} ${CPR_LIBRARIES} ${JSONCPP_LIBRARIES} CACHE INTERNAL "")
+set(ELASTICLIENT_LIBRARIES ${ELASTICLIENT_LIBRARY} ${CPR_LIBRARIES} CACHE INTERNAL "")
 set(ELASTICLIENT_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include CACHE INTERNAL "")
-set(ELASTICLIENT_INCLUDE_DIRS ${ELASTICLIENT_INCLUDE_DIR} ${CPR_INCLUDE_DIRS} ${JSONCPP_INCLUDE_DIRS} CACHE INTERNAL "")
+set(ELASTICLIENT_INCLUDE_DIRS ${ELASTICLIENT_INCLUDE_DIR} ${CPR_INCLUDE_DIRS} ${RapidJSON_INCLUDE_DIRS} CACHE INTERNAL "")
 
 add_subdirectory(src)
 
