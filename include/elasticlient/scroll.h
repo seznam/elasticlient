@@ -84,14 +84,14 @@ class Scroll {
      * \return true if okay
      * \return false on error
      */
-    bool next(std::unique_ptr<JsonResult> &parsedResult);
+    bool next(JsonResult &parsedResult);
 
     /// Return Client class with current config.
     const std::shared_ptr<Client> &getClient() const;
 
   protected:
     /// Creates new scroll - obtain scrollId and parsedResult
-    virtual bool createScroll(std::unique_ptr<JsonResult> &parsedResult);
+    virtual bool createScroll(JsonResult &parsedResult);
 };
 
 
@@ -120,7 +120,7 @@ class ScrollByScan : public Scroll {
      * make two Elasticsearch calls one for obtain scrollId and second for obtain
      * first bulk of results.
      */
-    virtual bool createScroll(std::unique_ptr<JsonResult> &parsedResult) override;
+    virtual bool createScroll(JsonResult &parsedResult) override;
 };
 
 

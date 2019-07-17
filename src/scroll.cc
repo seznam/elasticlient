@@ -58,7 +58,8 @@ void Scroll::Implementation::ScrollParams::clear() {
 
 
 bool Scroll::Implementation::run(
-        const std::string &commonUrlPart, const std::string &body, std::unique_ptr<elasticlient::JsonResult> &parsedResult)
+        const std::string &commonUrlPart, const std::string &body,
+        elasticlient::JsonResult &parsedResult)
 {
     try {
         const cpr::Response r = client->performRequest(Client::HTTPMethod::POST,
@@ -88,7 +89,7 @@ void Scroll::init(
 }
 
 
-bool Scroll::createScroll(std::unique_ptr<elasticlient::JsonResult> &parsedResult) {
+bool Scroll::createScroll(elasticlient::JsonResult &parsedResult) {
     Implementation::ScrollParams &scrollParameters = impl->scrollParameters;
     std::ostringstream urlPart;
     urlPart << scrollParameters.indexName << "/" << scrollParameters.docType << "/_search?scroll="
@@ -106,7 +107,7 @@ bool Scroll::createScroll(std::unique_ptr<elasticlient::JsonResult> &parsedResul
 }
 
 
-bool Scroll::next(std::unique_ptr<elasticlient::JsonResult> &parsedResult) {
+bool Scroll::next(elasticlient::JsonResult &parsedResult) {
     Implementation::ScrollParams &scrollParameters = impl->scrollParameters;
 
     if (!impl->isInitialized()) {
@@ -185,7 +186,7 @@ ScrollByScan::ScrollByScan(const std::vector<std::string> &hostUrlList,
 ScrollByScan::ScrollByScan(ScrollByScan &&) = default;
 
 
-bool ScrollByScan::createScroll(std::unique_ptr<elasticlient::JsonResult> &parsedResult) {
+bool ScrollByScan::createScroll(elasticlient::JsonResult &parsedResult) {
     Implementation::ScrollParams &scrollParameters = impl->scrollParameters;
 
     std::ostringstream urlPart;

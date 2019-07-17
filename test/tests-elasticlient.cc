@@ -267,21 +267,21 @@ TEST_F(ElasticlientTest, bulkBasics) {
 
 TEST_F(ElasticlientTest, scroll) {
     Scroll scrollInstance(std::make_shared<Client>(getMockedHosts()), 100, "1m");
-    std::unique_ptr<elasticlient::JsonResult> result;
+    elasticlient::JsonResult result;
     scrollInstance.init("test_scroll_ok*", "fake_index", "{}");
     ASSERT_TRUE(scrollInstance.next(result));
-    ASSERT_EQ(2UL, result->document["hits"]["hits"].Size());
+    ASSERT_EQ(2UL, result.document["hits"]["hits"].Size());
     ASSERT_TRUE(scrollInstance.next(result));
-    ASSERT_EQ(3UL, result->document["hits"]["hits"].Size());
+    ASSERT_EQ(3UL, result.document["hits"]["hits"].Size());
     ASSERT_TRUE(scrollInstance.next(result));
-    ASSERT_EQ(0UL, result->document["hits"]["hits"].Size());
+    ASSERT_EQ(0UL, result.document["hits"]["hits"].Size());
     ASSERT_FALSE(scrollInstance.next(result));
     scrollInstance.clear();
     scrollInstance.init("test_scroll_ok*", "fake_index", "{}");
     ASSERT_TRUE(scrollInstance.next(result));
-    ASSERT_EQ(2UL, result->document["hits"]["hits"].Size());
+    ASSERT_EQ(2UL, result.document["hits"]["hits"].Size());
     ASSERT_TRUE(scrollInstance.next(result));
-    ASSERT_EQ(3UL, result->document["hits"]["hits"].Size());
+    ASSERT_EQ(3UL, result.document["hits"]["hits"].Size());
     scrollInstance.clear();
     ASSERT_FALSE(scrollInstance.next(result));
 }

@@ -13,7 +13,6 @@
 #pragma once
 
 #include <string>
-#include <memory>
 #include <rapidjson/document.h>
 #include <elasticlient/scroll.h>
 
@@ -34,36 +33,34 @@ namespace elasticlient {
  * \return true on success.
  */
 bool parseScrollResult(
-        const std::string &result, std::unique_ptr<JsonResult> &parsedResult,
+        const std::string &result, JsonResult &parsedResult,
         std::string &scrollId)
 {
-    parsedResult.reset(new elasticlient::JsonResult{});
-
-    rapidjson::ParseResult ok = parsedResult->document.Parse(result.c_str());
-    if (!ok || !parsedResult->document.IsObject()) {
+    rapidjson::Document &document = parsedResult.document;
+    rapidjson::ParseResult ok = document.Parse(result.c_str());
+    if (!ok || !document.IsObject()) {
         // something is weird, only report error
         return false;
     }
 
-    if (parsedResult->document.HasMember("error")) {
-        const rapidjson::Value &err = parsedResult->document["error"];
+    if (document.HasMember("error")) {
+        const rapidjson::Value &err = document["error"];
         if (!err.IsBool() || err.GetBool()) {
             // an error was reported
             return false;
         }
     }
 
-    if (parsedResult->document.HasMember("timed_out")) {
-        const rapidjson::Value &doc = parsedResult->document["timed_out"];
+    if (document.HasMember("timed_out")) {
+        const rapidjson::Value &doc = document["timed_out"];
         if (!doc.IsBool() || doc.GetBool()) {
             // request timed out
             return false;
         }
     }
 
-    if (parsedResult->document.HasMember("_shards")
-            && parsedResult->document["_shards"].IsObject()) {
-        const rapidjson::Value &shards = parsedResult->document["_shards"];
+    if (document.HasMember("_shards") && document["_shards"].IsObject()) {
+        const rapidjson::Value &shards = document["_shards"];
         if (shards.HasMember("failed") && shards["failed"].IsInt()) {
             const int failed = shards["failed"].GetInt();
             if (failed > 0) {
@@ -79,13 +76,12 @@ bool parseScrollResult(
         return false;
     }
 
-    if (parsedResult->document.HasMember("hits")) {
-        rapidjson::Value &hits = parsedResult->document["hits"];
+    if (document.HasMember("hits")) {
+        const rapidjson::Value &hits = document["hits"];
         // just make sure the hits array is present
         if (hits.HasMember("hits") && hits["hits"].IsArray()) {
-            if (parsedResult->document.HasMember("_scroll_id")
-                    && parsedResult->document["_scroll_id"].IsString()) {
-                scrollId = parsedResult->document["_scroll_id"].GetString();
+            if (document.HasMember("_scroll_id") && document["_scroll_id"].IsString()) {
+                scrollId = document["_scroll_id"].GetString();
                 return true;
             }
             // missing _scroll_id, is that scroll response?

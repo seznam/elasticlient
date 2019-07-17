@@ -70,7 +70,7 @@ class Scroll::Implementation {
     }
 
     /// Run request on Client
-    bool run(const std::string &commonUrlPart, const std::string &body, std::unique_ptr<JsonResult> &parsedResult);
+    bool run(const std::string &commonUrlPart, const std::string &body, JsonResult &parsedResult);
 };
 
 
