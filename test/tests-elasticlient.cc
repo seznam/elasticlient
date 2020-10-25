@@ -99,21 +99,20 @@ class HTTPMock: public httpmock::MockServer {
         if (matchesPrefix(url, "/test_scroll_ok*/fake_index/_search")) {
             return Response(200, createScrollResponse("A0", false, 2, 2, 0));
         }
-        // Mocked scroll next page
-        if (method =="POST" && matchesPrefix(url, "/_search/scroll")) {
-            if(data == "A0") {
-                return Response(200, createScrollResponse("A1", false, 3, 2, 0));
-            }
-            else if(data == "A1") {
-                return Response(200, createScrollResponse("A2", false, 0, 2, 0));
-            }
-            else if(data == "A2") {
-                return Response(404, createScrollResponse("A3", false, 0, 1, 1));
-            }
-        }
-        // Mocked scroll remove
-        if (method == "DELETE" && matchesPrefix(url, "/_search/scroll")) {
-            if(data == "A2") {;
+        // Mocked another scroll stuff
+        if (matchesPrefix(url, "/_search/scroll")) {
+        const std::string scrollId = parseJSONData(data)["scroll_id"].asString();
+            // Mocked scroll next page
+            if (method == "POST") {
+                if (scrollId == "A0") {
+                   return Response(200, createScrollResponse("A1", false, 3, 2, 0));
+                } else if (scrollId == "A1") {
+                    return Response(200, createScrollResponse("A2", false, 0, 2, 0));
+                } else if (scrollId == "A2") {
+                    return Response(404, createScrollResponse("A3", false, 0, 1, 1));
+                }
+            // Mocked scroll remove
+            } else if (method == "DELETE" && scrollId == "A2") {
                 return Response(500, "{}");
             }
         }
