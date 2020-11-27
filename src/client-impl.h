@@ -15,6 +15,7 @@
 #include <thread>
 #include <time.h>
 #include <cpr/session.h>
+#include <cpr/proxies.h>
 #include "logging-impl.h"
 
 
@@ -99,6 +100,50 @@ class Client::Implementation {
     cpr::Response performRequest(Client::HTTPMethod method,
                                  const std::string &urlPath,
                                  const std::string &body = std::string());
+
+    /// Set client option from ClientOption derived classes.
+    void setClientOption(const ClientOption &opt) {
+        // invoke opt virtual method that will call visit() with specific type.
+        opt.accept(*this);
+    }
+
+    /// Set timeout from given instance.
+    void visit(const TimeoutOption &);
+    /// Set connection timeout from fiven instance.
+    void visit(const ConnectTimeoutOption &);
+    /// Set proxies from given instance.
+    void visit(const ProxiesOption &);
+    /// Set SSL options from given instance.
+    void visit(const SSLOption &);
+};
+
+
+class Client::SSLOption::SSLOptionImplementation {
+    /// SSL Options to set up.
+    cpr::SslOptions sslOptions;
+  public:
+    SSLOptionImplementation(): sslOptions() {}
+
+    const cpr::SslOptions &getOptions() const {
+        return sslOptions;
+    }
+
+    /// Set single option - derived from class SSLOptionType.
+    void setSslOption(const SSLOptionType &opt) {
+        // invoke opt virtual method that will call visit() with specific type.
+        opt.accept(*this);
+    }
+
+    /// Set certfile from given instance.
+    void visit(const CertFile &certFile);
+    /// Set keyfile from given instance.
+    void visit(const KeyFile &keyFile);
+    /// Set CA info from given instance.
+    void visit(const CaInfo &caBundle);
+    /// Set verify host flag from given option instance.
+    void visit(const VerifyHost &opt);
+    /// Set verify peer flag from given option instance.
+    void visit(const VerifyPeer &opt);
 };
 
 
