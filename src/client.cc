@@ -313,7 +313,7 @@ void Client::SSLOption::SSLOptionImplementation::visit(const CertFile &certFile)
 }
 
 void Client::SSLOption::SSLOptionImplementation::visit(const KeyFile &keyFile) {
-    sslOptions.SetOption(cpr::ssl::KeyFile(std::string{keyFile.path}));
+    sslOptions.SetOption(cpr::ssl::KeyFile(keyFile.path, keyFile.password));
 }
 
 void Client::SSLOption::SSLOptionImplementation::visit(const CaInfo &caBundle) {

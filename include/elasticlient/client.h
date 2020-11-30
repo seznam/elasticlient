@@ -141,9 +141,12 @@ class Client {
 
         /// Path to the certificate key file.
         struct KeyFile: public SSLOptionType {
-            explicit KeyFile(std::string path): path(std::move(path)) {}
+            explicit KeyFile(std::string path, std::string password = {})
+                : path(std::move(path)), password(std::move(password))
+            {}
             void accept(SSLOptionImplementation &) const override;
             std::string path;
+            std::string password;
         };
 
         /// Path to the custom CA bundle.
