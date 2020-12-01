@@ -201,7 +201,7 @@ void Scroll::clear() {
     if (!impl->isScrollStarted()) {
         LOG(LogLevel::INFO, "There is no scroll started (scrollId is empty).");
     } else {
-        const std::string requestBody{"{\"scroll_id\": \"" + scrollParameters.scrollId + "\"}"};
+        const std::string requestBody{"{\"scroll_id\": [\"" + scrollParameters.scrollId + "\"]}"};
         try {
             const cpr::Response r = impl->client->performRequest(
                 Client::HTTPMethod::DELETE, "_search/scroll/", requestBody);
