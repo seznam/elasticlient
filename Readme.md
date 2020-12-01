@@ -204,15 +204,43 @@ int main() {
 }
 ```
 
-## How to connect via http proxy
+## Elasticlient connection settings
 
-Just use different constructor.
+To setup various settings for the connection, option arguments can be passed into constructor.
 ```cpp
-elasticlient::Client client(
-    {"http://elastic1.host:9200/"}, 
-    6000,
-    {{"http", "http://proxy.host:8080"},{"https", "https://proxy.host:8080"}});
+    // Prepare Client for nodes of one Elasticsearch cluster.
+    // Various options could be passed into it - vector of the cluster nodes must be first
+    // but the rest of the arguments is order independent, and each is optional.
+    elasticlient::Client client(
+            {"http://elastic1.host:9200/"},
+            elasticlient::Client::TimeoutOption{30000},
+            elasticlient::Client::ConnectTimeoutOption{1000},
+            elasticlient::Client::ProxiesOption(
+                    {{"http", "http://proxy.host:8080"},
+                     {"https", "https://proxy.host:8080"}})
+    );
+
+    // each of these options can be set later as well
+    elasticlient::Client::SSLOption sslOptions {
+            elasticlient::Client::SSLOption::VerifyHost{true},
+            elasticlient::Client::SSLOption::VerifyPeer{true},
+            elasticlient::Client::SSLOption::CaInfo{"myca.pem"},
+            elasticlient::Client::SSLOption::CertFile{"mycert.pem"},
+            elasticlient::Client::SSLOption::KeyFile{"mycert-key.pem"}};
+    client.setClientOption(std::move(sslOptions));
+    client.setClientOption(elasticlient::Client::TimeoutOption{300000});
 ```
+
+Currently supported options:
+* `Client::TimeoutOption` - HTTP request timeout in ms.
+* `Client::ConnectTimeoutOption` - Connect timeout in ms.
+* `Client::ProxiesOption` - Proxy server settings.
+* `Client::SSLOption`
+  * `Client::SSLOption::CertFile` - path to the SSL certificate file.
+  * `Client::SSLOption::KeyFile` - path to the SSL certificate key file.
+  * `Client::SSLOption::CaInfo` - path to the CA bundle if custom CA is used.
+  * `Client::SSLOption::VerifyHost` - verify the certificate's name against host.
+  * `Client::SSLOption::VerifyPeer` - verify the peer's SSL certificate.
 
 ## License
 Elasticlient is licensed under the MIT License (MIT). Only the [cmake/Modules/FindJsonCpp.cmake](cmake/Modules/FindJsonCpp.cmake) is originally licensed
