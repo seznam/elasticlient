@@ -6,3 +6,9 @@ add_executable(hello-world
 
 target_link_libraries(hello-world
                       ${ELASTICLIENT_LIBRARIES})
+
+add_executable(initializations
+               initializations.cc)
+
+target_link_libraries(initializations
+                      ${ELASTICLIENT_LIBRARIES})

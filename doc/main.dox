@@ -78,4 +78,15 @@ int main() {
 }
  * \endcode
  * You can also find this and more examples of basic usage of library <a href="https://github.com/seznam/elasticlient#how-to-use">here</a>.
+ *
+ * Templated version of the constructor \ref elasticlient::Client::Client accepts option arguments to set timeout, proxy servers or SSL. Just pass these instances to it in any order (just after vector of cluster nodes):
+ * - \ref elasticlient::Client::TimeoutOption - HTTP request timeout in ms.
+ * - \ref elasticlient::Client::ConnectTimeoutOption - Connect timeout in ms.
+ * - \ref elasticlient::Client::ProxiesOption - Proxy server settings.
+ * - \ref elasticlient::Client::SSLOption
+ *   - \ref elasticlient::Client::SSLOption::CertFile - path to the SSL certificate file.
+ *   - \ref elasticlient::Client::SSLOption::KeyFile - path to the SSL certificate key file.
+ *   - \ref elasticlient::Client::SSLOption::CaInfo - path to the CA bundle if custom CA is used.
+ *   - \ref elasticlient::Client::SSLOption::VerifyHost - verify the certificate's name against host.
+ *   - \ref elasticlient::Client::SSLOption::VerifyPeer - verify the peer's SSL certificate.
  */

@@ -108,7 +108,7 @@ bool Scroll::createScroll(elasticlient::JsonResult &parsedResult) {
 
 
 bool Scroll::next(elasticlient::JsonResult &parsedResult) {
-    Implementation::ScrollParams &scrollParameters = impl->scrollParameters;
+    const Implementation::ScrollParams &scrollParameters = impl->scrollParameters;
 
     if (!impl->isInitialized()) {
         LOG(LogLevel::WARNING, "There is no scroll initialized (call init() at first).");
@@ -120,7 +120,8 @@ bool Scroll::next(elasticlient::JsonResult &parsedResult) {
         std::ostringstream urlPart;
         urlPart << "_search/scroll?scroll=" << impl->scrollTimeout;
         LOG(LogLevel::INFO, "Scroll (next) on %s.", urlPart.str().c_str());
-        if (impl->run(urlPart.str(), scrollParameters.scrollId, parsedResult)) {
+        const std::string requestBody{"{\"scroll_id\": \"" + scrollParameters.scrollId + "\"}"};
+        if (impl->run(urlPart.str(), requestBody, parsedResult)) {
             return true;
         }
     }
@@ -137,9 +138,10 @@ void Scroll::clear() {
     if (!impl->isScrollStarted()) {
         LOG(LogLevel::INFO, "There is no scroll started (scrollId is empty).");
     } else {
+        const std::string requestBody{"{\"scroll_id\": [\"" + scrollParameters.scrollId + "\"]}"};
         try {
             const cpr::Response r = impl->client->performRequest(
-                Client::HTTPMethod::DELETE, "_search/scroll/", scrollParameters.scrollId);
+                Client::HTTPMethod::DELETE, "_search/scroll/", requestBody);
             if (r.status_code / 100 != 2) {
                 LOG(LogLevel::WARNING, "Scroll delete failed response text: %s", r.text.c_str());
             }
