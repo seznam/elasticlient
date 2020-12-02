@@ -191,7 +191,7 @@ bool Client::Implementation::performRequestOnCurrentHost(Client::HTTPMethod meth
             throw std::runtime_error("This HTTP method is not implemented yet.");
     }
 
-    LOG(LogLevel::INFO, "Host returned %d in %lf s for %s.", response.status_code,
+    LOG(LogLevel::INFO, "Host returned %ld in %lf s for %s.", response.status_code,
         response.elapsed, entireUrl.c_str());
 
     LOG(LogLevel::DEBUG, "Host response text: %s", response.text.c_str());
