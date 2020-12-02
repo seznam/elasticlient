@@ -137,7 +137,7 @@ class HTTPMock: public httpmock::MockServer {
         if (matchesPrefix(url, "/_search/scroll")) {
             // Mocked scroll next page
             if (method == "POST") {
-                const std::string scrollId = parseJSONData(data)["scroll_id"].asString();
+                const std::string scrollId = parseScrollId(data);
                 if (scrollId == "A0") {
                    return Response(200, createScrollResponse("A1", false, 3, 2, 0));
                 } else if (scrollId == "A1") {
@@ -194,6 +194,22 @@ class HTTPMock: public httpmock::MockServer {
         rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
         response.Accept(writer);
         return buffer.GetString();
+    }
+
+    static std::string parseScrollId(const std::string &data) {
+        rapidjson::Document root;
+        rapidjson::ParseResult ok = root.Parse(data.c_str());
+        if (!ok || !root.IsObject()) {
+            return {};
+        }
+
+        if (root.HasMember("scroll_id")) {
+            const rapidjson::Value &scrollId = root["scroll_id"];
+            if (scrollId.IsString()) {
+                return scrollId.GetString();
+            }
+        }
+        return {};
     }
 };
 
@@ -331,7 +347,7 @@ TEST_F(ElasticlientTest, scroll) {
     ASSERT_EQ("DELETE", lastCallData.method);
     ASSERT_EQ("{\"scroll_id\": [\"A1\"]}", lastCallData.data);
 
-    ASSERT_FALSE(scrollInstance.next(hits));
+    ASSERT_FALSE(scrollInstance.next(result));
 }
 
 
