@@ -19,14 +19,17 @@ namespace elasticlient {
 /**
  * Create control field for one bulk item.
  *
+ * If docId is empty, the Id will be automatically generated.
+ *
  * Something like that is produced for call:
  * \code
  *   createControl("index", "type1", "1");
  *   {"index": {"_type": "type1", "_id": "1"}}
  * \endcode
  */
-std::string createControl(
-        const std::string &action, const std::string &docType, const std::string &docId);
+std::string createControl(const std::string &action,
+                          const std::string &docType,
+                          const std::string &docId = "");
 
 
 struct BulkItem {
