@@ -66,7 +66,7 @@ class SameIndexBulkData: public IBulkData {
     /**
      * Add index document request to the bulk.
      * \param docType document type (as specified in mapping).
-     * \param id document ID.
+     * \param id document ID, for auto-generated ID use empty string.
      * \param doc Json document to index. Must not contain newline char.
      * \return true if bulk has reached its desired capacity.
      */
@@ -77,7 +77,7 @@ class SameIndexBulkData: public IBulkData {
     /**
      * Add create document request to the bulk.
      * \param docType document type (as specified in mapping).
-     * \param id document ID.
+     * \param id document ID, for auto-generated ID use empty string.
      * \param doc Json document to index. Must not contain newline char.
      * \return true if bulk has reached its desired capacity.
      */
@@ -88,7 +88,7 @@ class SameIndexBulkData: public IBulkData {
     /**
      * Add update document request to the bulk.
      * \param docType document type (as specified in mapping).
-     * \param id document ID.
+     * \param id document ID, for auto-generated ID use empty string.
      * \param doc Json document to index. Must not contain newline char.
      * \return true if bulk has reached its desired capacity.
      */
