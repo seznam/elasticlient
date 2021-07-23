@@ -68,33 +68,40 @@ class SameIndexBulkData: public IBulkData {
      * \param docType document type (as specified in mapping).
      * \param id document ID, for auto-generated ID use empty string.
      * \param doc Json document to index. Must not contain newline char.
+     * \param validate checks whether string contains a newline, default true.
      * \return true if bulk has reached its desired capacity.
      */
-    bool indexDocument(
-            const std::string &docType, const std::string &id,
-            const std::string &doc);
+    bool indexDocument(const std::string &docType,
+                       const std::string &id,
+                       const std::string &doc,
+                       bool validate = true);
 
     /**
      * Add create document request to the bulk.
      * \param docType document type (as specified in mapping).
      * \param id document ID, for auto-generated ID use empty string.
      * \param doc Json document to index. Must not contain newline char.
+     * \param validate checks whether string contains a newline, default true.
      * \return true if bulk has reached its desired capacity.
      */
-    bool createDocument(
-            const std::string &docType, const std::string &id,
-            const std::string &doc);
+    bool createDocument(const std::string &docType,
+                        const std::string &id,
+                        const std::string &doc,
+                        bool validate = true);
 
     /**
      * Add update document request to the bulk.
      * \param docType document type (as specified in mapping).
      * \param id document ID, for auto-generated ID use empty string.
      * \param doc Json document to index. Must not contain newline char.
+     * \param validate checks whether string contains a newline, default true.
      * \return true if bulk has reached its desired capacity.
      */
     bool updateDocument(
-            const std::string &docType, const std::string &id,
-            const std::string &doc);
+            const std::string &docType,
+            const std::string &id,
+            const std::string &doc,
+            bool validate = true);
 
     /// Clear bulk (size() == 0 after this).
     void clear();
