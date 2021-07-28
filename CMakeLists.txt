@@ -40,6 +40,7 @@ get_variable(ELASTICLIENT_VERSION_MINOR "Set elasticlient minor version." 1 NO)
 get_variable(ELASTICLIENT_VERSION_PATCH "Set elasticlient patch version." 0 NO)
 get_variable(BUILD_ELASTICLIENT_TESTS "Build tests for elasticlient library." YES YES)
 get_variable(BUILD_ELASTICLIENT_EXAMPLE "Build exmaple program which using elasticlient library." YES YES)
+get_variable(BUILD_SHARED_LIBS "Build shared libraries" ON YES)
 
 get_variable(USE_ALL_SYSTEM_LIBS "Will found all libraries in system." NO YES)
 if(USE_ALL_SYSTEM_LIBS)
