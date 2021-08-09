@@ -51,6 +51,7 @@ Following CMake configuration variables may be passed right before `..` in `cmak
 * `-DUSE_SYSTEM_HTTPMOCKSERVER=YES`  - use C++ HTTP mock server library from system (default=NO)
 * `-DBUILD_ELASTICLIENT_TESTS=YES`  - build elasticlient library tests (default=YES)
 * `-DBUILD_ELASTICLIENT_EXAMPLE=YES`  - build elasticlient library example hello-world program (default=YES)
+* `-DBUILD_SHARED_LIBS=YES`  - build as a shared library (default=YES)
 
 ## How to use
 ###### Basic Hello world example
