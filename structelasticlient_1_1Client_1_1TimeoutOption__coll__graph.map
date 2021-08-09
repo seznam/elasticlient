@@ -1,4 +1,5 @@
 <map id="elasticlient::Client::TimeoutOption" name="elasticlient::Client::TimeoutOption">
-<area shape="rect" id="node2" href="$structelasticlient_1_1Client_1_1ClientOptionValue.html" title="elasticlient::Client\l::ClientOptionValue\&lt;\l std::int32_t \&gt;" alt="" coords="5,95,160,151"/>
-<area shape="rect" id="node3" href="$structelasticlient_1_1Client_1_1ClientOption.html" title="Abstract class for various options passed to Client constructor. " alt="" coords="15,5,150,47"/>
+<area shape="rect" id="node1" title="The timeout [ms] setting for client connection." alt="" coords="15,199,155,240"/>
+<area shape="rect" id="node2" href="$structelasticlient_1_1Client_1_1ClientOptionValue.html" title=" " alt="" coords="5,95,164,151"/>
+<area shape="rect" id="node3" href="$structelasticlient_1_1Client_1_1ClientOption.html" title="Abstract class for various options passed to Client constructor." alt="" coords="15,5,155,47"/>
 </map>

@@ -1,4 +1,4 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$classelasticlient_1_1Scroll.html" title="Class for use of Elasticsearch Scroll API. " alt="" coords="5,5,139,32"/>
-<area shape="rect" id="node2" href="$classelasticlient_1_1ScrollByScan.html" title="Class for use of Elasticsearch Scroll API with deprecated scan option. " alt="" coords="187,5,368,32"/>
+<area shape="rect" id="node1" href="$classelasticlient_1_1Scroll.html" title="Class for use of Elasticsearch Scroll API." alt="" coords="5,5,144,32"/>
+<area shape="rect" id="node2" href="$classelasticlient_1_1ScrollByScan.html" title="Class for use of Elasticsearch Scroll API with deprecated scan option." alt="" coords="192,5,379,32"/>
 </map>

@@ -1,8 +1,9 @@
 <map id="elasticlient::Client::ClientOption" name="elasticlient::Client::ClientOption">
-<area shape="rect" id="node2" href="$structelasticlient_1_1Client_1_1ClientOptionValue.html" title="elasticlient::Client\l::ClientOptionValue\&lt;\l std::int32_t \&gt;" alt="" coords="201,30,355,86"/>
-<area shape="rect" id="node5" href="$structelasticlient_1_1Client_1_1ClientOptionValue.html" title="Helper class holding single value for ClientOption implementations. " alt="" coords="188,109,368,151"/>
-<area shape="rect" id="node6" href="$structelasticlient_1_1Client_1_1ProxiesOption.html" title="Proxies option for client connection. " alt="" coords="211,175,345,216"/>
-<area shape="rect" id="node7" href="$structelasticlient_1_1Client_1_1SSLOption.html" title="Options to setup SSL for client connection. " alt="" coords="211,240,345,281"/>
-<area shape="rect" id="node3" href="$structelasticlient_1_1Client_1_1ConnectTimeoutOption.html" title="The connection timeout [ms] for client. " alt="" coords="416,5,593,47"/>
-<area shape="rect" id="node4" href="$structelasticlient_1_1Client_1_1TimeoutOption.html" title="The timeout [ms] setting for client connection. " alt="" coords="437,71,572,112"/>
+<area shape="rect" id="node1" title="Abstract class for various options passed to Client constructor." alt="" coords="5,144,145,185"/>
+<area shape="rect" id="node2" href="$structelasticlient_1_1Client_1_1ClientOptionValue.html" title=" " alt="" coords="207,30,365,86"/>
+<area shape="rect" id="node5" href="$structelasticlient_1_1Client_1_1ClientOptionValue.html" title="Helper class holding single value for ClientOption implementations." alt="" coords="193,111,379,152"/>
+<area shape="rect" id="node6" href="$structelasticlient_1_1Client_1_1ProxiesOption.html" title="Proxies option for client connection." alt="" coords="216,176,356,217"/>
+<area shape="rect" id="node7" href="$structelasticlient_1_1Client_1_1SSLOption.html" title="Options to setup SSL for client connection." alt="" coords="216,241,356,283"/>
+<area shape="rect" id="node3" href="$structelasticlient_1_1Client_1_1ConnectTimeoutOption.html" title="The connection timeout [ms] for client." alt="" coords="427,5,607,47"/>
+<area shape="rect" id="node4" href="$structelasticlient_1_1Client_1_1TimeoutOption.html" title="The timeout [ms] setting for client connection." alt="" coords="447,71,587,112"/>
 </map>

@@ -1,3 +1,4 @@
 <map id="elasticlient::Scroll" name="elasticlient::Scroll">
-<area shape="rect" id="node2" href="$classelasticlient_1_1ScrollByScan.html" title="Class for use of Elasticsearch Scroll API with deprecated scan option. " alt="" coords="5,80,187,107"/>
+<area shape="rect" id="node1" title="Class for use of Elasticsearch Scroll API." alt="" coords="29,5,168,32"/>
+<area shape="rect" id="node2" href="$classelasticlient_1_1ScrollByScan.html" title="Class for use of Elasticsearch Scroll API with deprecated scan option." alt="" coords="5,80,192,107"/>
 </map>

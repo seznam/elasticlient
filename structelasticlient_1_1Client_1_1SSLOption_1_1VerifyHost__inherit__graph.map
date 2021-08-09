@@ -1,3 +1,4 @@
 <map id="elasticlient::Client::SSLOption::VerifyHost" name="elasticlient::Client::SSLOption::VerifyHost">
-<area shape="rect" id="node2" href="$structelasticlient_1_1Client_1_1SSLOption_1_1SSLOptionType.html" title="Abstract base class for specific SSL options. " alt="" coords="5,5,205,47"/>
+<area shape="rect" id="node1" title="Flag whether to verify host." alt="" coords="20,95,191,136"/>
+<area shape="rect" id="node2" href="$structelasticlient_1_1Client_1_1SSLOption_1_1SSLOptionType.html" title="Abstract base class for specific SSL options." alt="" coords="5,5,205,47"/>
 </map>

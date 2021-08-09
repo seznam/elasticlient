@@ -1,3 +1,4 @@
 <map id="elasticlient::Client::SSLOption::CaInfo" name="elasticlient::Client::SSLOption::CaInfo">
-<area shape="rect" id="node2" href="$structelasticlient_1_1Client_1_1SSLOption_1_1SSLOptionType.html" title="Abstract base class for specific SSL options. " alt="" coords="5,5,205,47"/>
+<area shape="rect" id="node1" title="Path to the custom CA bundle." alt="" coords="32,95,179,136"/>
+<area shape="rect" id="node2" href="$structelasticlient_1_1Client_1_1SSLOption_1_1SSLOptionType.html" title="Abstract base class for specific SSL options." alt="" coords="5,5,205,47"/>
 </map>
