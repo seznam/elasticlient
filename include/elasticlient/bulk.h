@@ -70,9 +70,23 @@ class SameIndexBulkData: public IBulkData {
      * \param doc Json document to index. Must not contain newline char.
      * \return true if bulk has reached its desired capacity.
      */
-    bool indexDocument(
-            const std::string &docType, const std::string &id,
-            const std::string &doc);
+    bool indexDocument(const std::string &docType,
+                       const std::string &id,
+                       const std::string &doc);
+
+    /**
+     * Add index document request to the bulk.
+     * \param docType document type (as specified in mapping).
+     * \param id document ID, for auto-generated ID use empty string.
+     * \param doc Json document to index. Must not contain newline char.
+     * \param validate checks whether string contains a newline.
+     * \return true if bulk has reached its desired capacity.
+     * \todo Merge with indexDocument() above with validate=true when ABI breaks.
+     */
+    bool indexDocument(const std::string &docType,
+                       const std::string &id,
+                       const std::string &doc,
+                       bool validate);
 
     /**
      * Add create document request to the bulk.
@@ -81,9 +95,23 @@ class SameIndexBulkData: public IBulkData {
      * \param doc Json document to index. Must not contain newline char.
      * \return true if bulk has reached its desired capacity.
      */
-    bool createDocument(
-            const std::string &docType, const std::string &id,
-            const std::string &doc);
+    bool createDocument(const std::string &docType,
+                        const std::string &id,
+                        const std::string &doc);
+
+    /**
+     * Add create document request to the bulk.
+     * \param docType document type (as specified in mapping).
+     * \param id document ID, for auto-generated ID use empty string.
+     * \param doc Json document to index. Must not contain newline char.
+     * \param validate checks whether string contains a newline.
+     * \return true if bulk has reached its desired capacity.
+     * \todo Merge with createDocument() above with validate=true when ABI breaks.
+     */
+    bool createDocument(const std::string &docType,
+                        const std::string &id,
+                        const std::string &doc,
+                        bool validate);
 
     /**
      * Add update document request to the bulk.
@@ -93,8 +121,24 @@ class SameIndexBulkData: public IBulkData {
      * \return true if bulk has reached its desired capacity.
      */
     bool updateDocument(
-            const std::string &docType, const std::string &id,
+            const std::string &docType,
+            const std::string &id,
             const std::string &doc);
+
+    /**
+     * Add update document request to the bulk.
+     * \param docType document type (as specified in mapping).
+     * \param id document ID, for auto-generated ID use empty string.
+     * \param doc Json document to index. Must not contain newline char.
+     * \param validate checks whether string contains a newline.
+     * \return true if bulk has reached its desired capacity.
+     * \todo Merge with updateDocument() above with validate=true when ABI breaks.
+     */
+    bool updateDocument(
+            const std::string &docType,
+            const std::string &id,
+            const std::string &doc,
+            bool validate);
 
     /// Clear bulk (size() == 0 after this).
     void clear();
