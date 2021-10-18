@@ -11,6 +11,9 @@
 #include <cpr/cpr.h>
 #include "logging-impl.h"
 
+#ifndef __GNUC__ 
+#undef DELETE
+#endif
 
 namespace {
 

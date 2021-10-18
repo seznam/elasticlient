@@ -12,13 +12,22 @@
 #include <cstdio>
 #include <cstdarg>
 
-
-#define LOG(logLevel, args...)                                    \
+#ifdef __GNUC__ 
+#define LOG(logLevel, args ...)                                    \
     do {                                                          \
         if(elasticlient::isLoggingEnabled()) {                    \
             elasticlient::propagateLogMessage(logLevel, args);    \
         }                                                         \
     } while (false)
+#else
+#define LOG(logLevel, ...)                                    \
+    do {                                                          \
+        if(elasticlient::isLoggingEnabled()) {                    \
+            elasticlient::propagateLogMessage(logLevel, __VA_ARGS__);    \
+        }                                                         \
+    } while (false)
+#endif
+
 
 
 namespace elasticlient {
@@ -33,8 +42,11 @@ void dbgLog(LogLevel logLevel, const std::string &message);
 
 
 inline void propagateLogMessage(
-        LogLevel logLevel, const char* message, ...) __attribute__ ((format (printf, 2, 3)));
-
+        LogLevel logLevel, const char* message, ...) 
+#ifdef __GNUC__ 
+	__attribute__ ((format (printf, 2, 3)))
+#endif
+;
 
 void propagateLogMessage(LogLevel logLevel, const char* message, ...) {
     va_list args;
