@@ -19,7 +19,9 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 endif()
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pipe -Wall -Wextra -Wfatal-errors -Wformat-security -Wuninitialized -Wfloat-equal -fPIC -g")
+if(CMAKE_COMPILER_IS_GNUCXX)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pipe -Wall -Wextra -Wfatal-errors -Wformat-security -Wuninitialized -Wfloat-equal -fPIC -g")
+endif(CMAKE_COMPILER_IS_GNUCXX)
 set(CMAKE_CXX_FLAGS_RELEASE "-O2")
 
 macro(get_variable VAR_NAME VAR_TEXT DEFAULT_VALUE IS_OPTION)

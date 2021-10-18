@@ -6,6 +6,9 @@
 #pragma once
 #include <string>
 
+#ifndef __GNUC__ 
+#undef ERROR
+#endif
 
 /// The elasticlient namespace
 namespace elasticlient {

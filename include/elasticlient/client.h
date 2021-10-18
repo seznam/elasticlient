@@ -14,6 +14,9 @@
 #include <initializer_list>
 #include <type_traits>
 
+#ifndef __GNUC__ 
+#undef DELETE
+#endif
 
 // Forward cpr::Response existence.
 namespace cpr {
