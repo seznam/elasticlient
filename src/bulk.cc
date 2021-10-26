@@ -9,6 +9,8 @@
 #include <sstream>
 #include <cpr/cpr.h>
 #include <rapidjson/document.h>
+#include <rapidjson/stringbuffer.h>
+#include <rapidjson/writer.h>
 #include "logging-impl.h"
 #include "elasticlient/client.h"
 
@@ -25,6 +27,16 @@ void validateDocument(const std::string &doc, const std::string &id) {
         throw std::runtime_error("Cannot index document containing newline char");
     }
 }
+
+
+/// Returns rapidjson value as a string
+static std::string jsonValueToString(const rapidjson::Value& val) {
+    rapidjson::StringBuffer buffer;
+    rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+    val.Accept(writer);
+
+    return buffer.GetString();
+};
 
 
 } // anonymous namespace
@@ -215,6 +227,10 @@ void Bulk::Implementation::processResult(
     rapidjson::ParseResult ok = root.Parse(result.c_str());
     if (!ok || !root.IsObject()) {
         // probably whole bulk has failed
+        if (root.HasParseError()) {
+            LOG(LogLevel::WARNING, "Failed to parse elastic response, invalid json!");
+        }
+
         errCount += size;
         return;
     }
@@ -288,10 +304,20 @@ void Bulk::Implementation::processResult(
 
             // if status code is not 2xx family, consider it as error
             if (status.GetInt() / 100 != 2) {
+                std::ostringstream out;
+                out << "Bulk response contains status code "
+                    << std::to_string(status.GetInt())
+                    << " Elastic response: " << jsonValueToString(item);
+
+                LOG(LogLevel::WARNING, out.str().c_str());
                 errCount++;
             }
         } else {
-            LOG(LogLevel::WARNING, "Unsupported 'action' found at bulk response.");
+            std::ostringstream out;
+            out << "Unsupported 'action' found at bulk response, "
+                << jsonValueToString(root);
+
+            LOG(LogLevel::WARNING, out.str().c_str());
         }
     }
 
