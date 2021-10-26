@@ -185,8 +185,10 @@ void Bulk::Implementation::run(const IBulkData &bulk) {
         const cpr::Response r = client->performRequest(Client::HTTPMethod::POST,
                                                        indexName + "/_bulk",
                                                        body);
-        if (r.status_code / 100 != 2) {
-            throw ConnectionException("Elastic node not respond with status 2xx.");
+        if (r.status_code < 200 || r.status_code > 299) {
+            throw ConnectionException("Elastic node responded with status "
+                                      + std::to_string(r.status_code) + ". "
+                                      + r.text);
         }
         processResult(r.text, bulk.size());
     } catch(const ConnectionException &ex) {
