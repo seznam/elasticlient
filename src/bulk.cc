@@ -9,6 +9,8 @@
 #include <sstream>
 #include <cpr/cpr.h>
 #include <rapidjson/document.h>
+#include <rapidjson/stringbuffer.h>
+#include <rapidjson/writer.h>
 #include "logging-impl.h"
 #include "elasticlient/client.h"
 
@@ -27,10 +29,66 @@ void validateDocument(const std::string &doc, const std::string &id) {
 }
 
 
+/// Returns rapidjson value as a string
+static std::string jsonValueToString(const rapidjson::Value& val) {
+    rapidjson::StringBuffer buffer;
+    rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+    val.Accept(writer);
+
+    return buffer.GetString();
+};
+
+
 } // anonymous namespace
 
 
 namespace elasticlient {
+
+static const char *supportedActions[] = {
+    "create",
+    "index",
+    "update",
+    "delete",
+};
+
+
+static int containsError(const rapidjson::Value &item, const char *action) {
+    int errors = 0;
+
+    const rapidjson::Value &res = item[action];
+    if (!res.IsObject()) {
+        LOG(LogLevel::WARNING, "Bulk response has unexpected format, "
+                               "object was expected.");
+        return ++errors;
+    }
+
+    // read status code
+    if (!res.HasMember("status")) {
+        LOG(LogLevel::WARNING, "Bulk response item with missing status.");
+        return ++errors;
+    };
+
+    const rapidjson::Value &status = res["status"];
+    if (!status.IsInt()) {
+        LOG(LogLevel::WARNING, "Bulk response was expected to have numeric status. "
+                               "Skipping this response checking.");
+        return ++errors;
+    }
+
+    // if status code is not 2xx family, consider it as error
+    int status_code = status.GetInt();
+    if (status_code < 200 || status_code > 299) {
+        std::ostringstream out;
+        out << "Bulk response contains status code "
+            << std::to_string(status_code)
+            << " Elastic response: " << jsonValueToString(item);
+
+        LOG(LogLevel::WARNING, out.str().c_str());
+        return ++errors;
+    }
+
+    return errors;
+}
 
 
 IBulkData::~IBulkData() {}
@@ -185,8 +243,10 @@ void Bulk::Implementation::run(const IBulkData &bulk) {
         const cpr::Response r = client->performRequest(Client::HTTPMethod::POST,
                                                        indexName + "/_bulk",
                                                        body);
-        if (r.status_code / 100 != 2) {
-            throw ConnectionException("Elastic node not respond with status 2xx.");
+        if (r.status_code < 200 || r.status_code > 299) {
+            throw ConnectionException("Elastic node responded with status "
+                                      + std::to_string(r.status_code) + ". "
+                                      + r.text);
         }
         processResult(r.text, bulk.size());
     } catch(const ConnectionException &ex) {
@@ -213,6 +273,10 @@ void Bulk::Implementation::processResult(
     rapidjson::ParseResult ok = root.Parse(result.c_str());
     if (!ok || !root.IsObject()) {
         // probably whole bulk has failed
+        if (root.HasParseError()) {
+            LOG(LogLevel::WARNING, "Failed to parse elastic response, invalid json!");
+        }
+
         errCount += size;
         return;
     }
@@ -229,6 +293,8 @@ void Bulk::Implementation::processResult(
     //          "_shards": {"total": int, "successful": int, "failed": int},
     //          "status": 201}}
     //  ]}
+    //  Reference:
+    //  https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-bulk.html#bulk-api-response-body
 
     // check errors flag, if it is false, do not parse single responses
     if (root.HasMember("errors")) {
@@ -262,34 +328,11 @@ void Bulk::Implementation::processResult(
         }
 
         // check index action response
-        if (item.HasMember("index")) {
-            const rapidjson::Value &res = item["index"];
-            if (!res.IsObject()) {
-                LOG(LogLevel::WARNING, "Bulk response has unexpected format, "
-                                       "object was expected.");
-                errCount++;
-                continue;
-            }
-            // read status code
-            if (!res.HasMember("status")) {
-                LOG(LogLevel::WARNING, "Bulk response item with missing status.");
-                errCount++;
-                continue;
-            };
-            const rapidjson::Value &status = res["status"];
-            if (!status.IsInt()) {
-                LOG(LogLevel::WARNING, "Bulk response was expected to have numeric status. "
-                                       "Skipping this response checking.");
-                errCount++;
-                continue;
-            }
-
-            // if status code is not 2xx family, consider it as error
-            if (status.GetInt() / 100 != 2) {
-                errCount++;
-            }
-        } else {
-            LOG(LogLevel::WARNING, "Unsupported 'action' found at bulk response.");
+        for (const auto &action : supportedActions) {
+             if (item.HasMember(action)) {
+                 errCount += containsError(item, action);
+                 break;
+             }
         }
     }
 
