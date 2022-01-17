@@ -1,6 +1,7 @@
 include_directories(${ELASTICLIENT_INCLUDE_DIRS}
                     ${CPR_INCLUDE_DIRS}
-                    ${JSONCPP_INCLUDE_DIRS})
+                    ${JSONCPP_INCLUDE_DIRS}
+                    ${FMT_INCLUDE_DIRS})
 
 add_library(${ELASTICLIENT_LIBRARY}
             client.cc
@@ -22,7 +23,8 @@ endif()
 
 target_link_libraries(${ELASTICLIENT_LIBRARY}
                       ${JSONCPP_LIBRARIES}
-                      ${CPR_LIBRARIES})
+                      ${CPR_LIBRARIES}
+                      ${FMT_LIBRARIES})
 
 install(TARGETS ${ELASTICLIENT_LIBRARY} LIBRARY
         DESTINATION lib)

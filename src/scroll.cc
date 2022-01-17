@@ -41,7 +41,7 @@ Scroll::~Scroll() {
         } catch(const std::exception &ex) {
             try {
                 LOG(LogLevel::ERROR, "Scroll destructor called but exception "
-                                     "was raised: '%s'.", ex.what());
+                                     "was raised: '{}'.", ex.what());
             }
             catch(const std::exception &) {}
         }
@@ -70,15 +70,15 @@ bool Scroll::Implementation::parseResult(const std::string &result, Json::Value 
     if (root.isMember("error")) {
         const Json::Value &error = root["error"];
         if (!error.isBool() || error.asBool()) {
-            LOG(LogLevel::WARNING, "An Elastic error occured while getting scroll result. '%s'",
-                result.c_str());
+            LOG(LogLevel::WARNING, "An Elastic error occured while getting scroll result. '{}'",
+                result);
             return false;
         }
     }
 
     if (root.isMember("timed_out")) {
         if (!root["timed_out"].isBool() || root["timed_out"].asBool()) {
-            LOG(LogLevel::WARNING, "The Scroll has been timeouted. '%s'", result.c_str());
+            LOG(LogLevel::WARNING, "The Scroll has been timeouted. '{}'", result);
             return false;
         }
     }
@@ -87,13 +87,13 @@ bool Scroll::Implementation::parseResult(const std::string &result, Json::Value 
         const Json::Value &shards = root["_shards"];
         if (shards.isMember("failed") && shards["failed"].isInt()) {
             if (shards["failed"].asInt() > 0) {
-                LOG(LogLevel::WARNING, "Results not obtained from all shards (failed=%d). '%s'",
-                    shards["failed"].asInt(), result.c_str());
+                LOG(LogLevel::WARNING, "Results not obtained from all shards (failed={}). '{}'",
+                    shards["failed"].asInt(), result);
                 return false;
             }
         } else {
-            LOG(LogLevel::WARNING, "In result is no information about failed shards. '%s'",
-                result.c_str());
+            LOG(LogLevel::WARNING, "In result is no information about failed shards. '{}'",
+                result);
             return false;
         }
     } else {
@@ -132,7 +132,7 @@ bool Scroll::Implementation::run(
         }
 
     } catch(const ConnectionException &ex) {
-        LOG(LogLevel::ERROR, "Elastic cluster failed while scrolling: %s", ex.what());
+        LOG(LogLevel::ERROR, "Elastic cluster failed while scrolling: {}", ex.what());
     }
     return false;
 }
@@ -157,8 +157,8 @@ bool Scroll::createScroll(Json::Value &parsedResult) {
     std::ostringstream urlPart;
     urlPart << scrollParameters.indexName << "/" << scrollParameters.docType << "/_search?scroll="
             << impl->scrollTimeout << "&size=" << impl->scrollSize;
-    LOG(LogLevel::INFO, "Scroll (create) on %s.", urlPart.str().c_str());
-    LOG(LogLevel::INFO, "Scroll (create) body %s.", scrollParameters.searchBody.c_str());
+    LOG(LogLevel::INFO, "Scroll (create) on {}.", urlPart.str());
+    LOG(LogLevel::INFO, "Scroll (create) body {}.", scrollParameters.searchBody);
 
     if (impl->run(urlPart.str(), scrollParameters.searchBody, parsedResult)) {
         return true;
@@ -182,7 +182,7 @@ bool Scroll::next(Json::Value &parsedResult) {
     } else {
         std::ostringstream urlPart;
         urlPart << "_search/scroll?scroll=" << impl->scrollTimeout;
-        LOG(LogLevel::INFO, "Scroll (next) on %s.", urlPart.str().c_str());
+        LOG(LogLevel::INFO, "Scroll (next) on {}.", urlPart.str());
         const std::string requestBody{"{\"scroll_id\": \"" + scrollParameters.scrollId + "\"}"};
         if (impl->run(urlPart.str(), requestBody, parsedResult)) {
             return true;
@@ -206,10 +206,10 @@ void Scroll::clear() {
             const cpr::Response r = impl->client->performRequest(
                 Client::HTTPMethod::DELETE, "_search/scroll/", requestBody);
             if (r.status_code / 100 != 2) {
-                LOG(LogLevel::WARNING, "Scroll delete failed response text: %s", r.text.c_str());
+                LOG(LogLevel::WARNING, "Scroll delete failed response text: {}", r.text);
             }
         } catch(const ConnectionException &ex) {
-            LOG(LogLevel::ERROR, "Elastic cluster failed while clearing scroll: %s", ex.what());
+            LOG(LogLevel::ERROR, "Elastic cluster failed while clearing scroll: {}", ex.what());
         }
     }
 
@@ -258,8 +258,8 @@ bool ScrollByScan::createScroll(Json::Value &parsedResult) {
     urlPart << scrollParameters.indexName << "/" << scrollParameters.docType << "/_search?scroll="
             << impl->scrollTimeout << "&size=" << impl->scrollSize << "&search_type=scan";
 
-    LOG(LogLevel::INFO, "Scroll (create) on %s.", urlPart.str().c_str());
-    LOG(LogLevel::INFO, "Scroll (create) body %s.",scrollParameters.searchBody.c_str());
+    LOG(LogLevel::INFO, "Scroll (create) on {}.", urlPart.str());
+    LOG(LogLevel::INFO, "Scroll (create) body {}.", scrollParameters.searchBody);
 
     if (impl->run(urlPart.str(), scrollParameters.searchBody, parsedResult)) {
         // call next() again to obtain results (scan not giving results on first request)

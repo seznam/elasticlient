@@ -15,17 +15,12 @@ namespace elasticlient {
 static LogCallback logFunction = nullptr;
 
 
-bool isLoggingEnabled() {
-    return logFunction != nullptr;
-}
-
-
 void setLogFunction(LogCallback extLogFunction) {
     logFunction = extLogFunction;
 }
 
 
-void dbgLog(LogLevel logLevel, const std::string &message) {
+void log(LogLevel logLevel, const std::string &message) {
     if (logFunction) {
         logFunction(logLevel, message);
     }
