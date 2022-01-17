@@ -10,3 +10,6 @@
 [submodule "external/httpmockserver"]
 	path = external/httpmockserver
 	url = https://github.com/seznam/httpmockserver
+[submodule "external/fmt"]
+	path = external/fmt
+	url = https://github.com/fmtlib/fmt.git

@@ -21,7 +21,7 @@ void validateDocument(const std::string &doc, const std::string &id) {
     // new-line char is not allowed in document
     if (doc.find_first_of("\n") != std::string::npos) {
         LOG(elasticlient::LogLevel::ERROR,
-            "A document for %s contains newline character.", id.c_str());
+            "A document for {} contains newline character.", id);
         throw std::runtime_error("Cannot index document containing newline char");
     }
 }
@@ -190,7 +190,7 @@ void Bulk::Implementation::run(const IBulkData &bulk) {
         }
         processResult(r.text, bulk.size());
     } catch(const ConnectionException &ex) {
-        LOG(LogLevel::ERROR, "Elastic cluster while indexing bulk: %s", ex.what());
+        LOG(LogLevel::ERROR, "Elastic cluster while indexing bulk: {}", ex.what());
         errCount += bulk.size();
     }
 }
@@ -199,7 +199,7 @@ void Bulk::Implementation::run(const IBulkData &bulk) {
 std::size_t Bulk::perform(const IBulkData &bulk) {
     if (bulk.empty()) { return 0; }
 
-    LOG(LogLevel::INFO, "Going to index %lu elements.", bulk.size());
+    LOG(LogLevel::INFO, "Going to index {} elements.", bulk.size());
     impl->errCount = 0;
     impl->run(bulk);
     return impl->errCount;
@@ -290,7 +290,7 @@ void Bulk::Implementation::processResult(
     // complain if not all items of the bulk were covered by responses
     if (items.size() < size) {
         LOG(LogLevel::INFO, "Bulk has more items than responses received. Cannot tell "
-                            "whether %lu items succeeded...", size - items.size());
+                            "whether {} items succeeded...", size - items.size());
     }
 }
 
