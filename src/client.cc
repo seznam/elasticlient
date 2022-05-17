@@ -57,22 +57,98 @@ void fillRoutingInUrlPath(const std::string &routing, std::ostringstream &urlPat
 
 namespace elasticlient {
 
+void Client::TimeoutOption::accept(Implementation &impl) const {
+    impl.visit(*this);
+}
+
+void Client::ConnectTimeoutOption::accept(Implementation &impl) const {
+    impl.visit(*this);
+}
+
+
+class Client::ProxiesOption::ProxiesOptionImplementation {
+    cpr::Proxies proxies;
+  public:
+    ProxiesOptionImplementation(
+            const std::initializer_list<std::pair<const std::string, std::string>> &proxies)
+        : proxies(proxies)
+    {}
+
+    const cpr::Proxies &getProxies() const {
+        return proxies;
+    }
+};
+
+Client::ProxiesOption::ProxiesOption(
+        const std::initializer_list<std::pair<const std::string, std::string>> &proxies)
+    : impl(new Client::ProxiesOption::ProxiesOptionImplementation(proxies))
+{}
+
+Client::ProxiesOption::~ProxiesOption() = default;
+
+void Client::ProxiesOption::accept(Implementation &impl) const {
+    impl.visit(*this);
+}
+
+
+Client::SSLOption::SSLOption(): impl(new SSLOptionImplementation()) {}
+Client::SSLOption::SSLOption(SSLOption &&) = default;
+Client::SSLOption::~SSLOption() = default;
+
+void Client::SSLOption::setSslOption(const SSLOptionType &opt) {
+    impl->setSslOption(opt);
+}
+
+void Client::SSLOption::accept(Implementation &impl) const {
+    impl.visit(*this);
+}
+
+void Client::SSLOption::CertFile::accept(SSLOptionImplementation &impl) const {
+    impl.visit(*this);
+}
+
+void Client::SSLOption::KeyFile::accept(SSLOptionImplementation &impl) const {
+    impl.visit(*this);
+}
+
+void Client::SSLOption::CaInfo::accept(SSLOptionImplementation &impl) const {
+    impl.visit(*this);
+}
+
+void Client::SSLOption::VerifyHost::accept(SSLOptionImplementation &impl) const {
+    impl.visit(*this);
+}
+
+void Client::SSLOption::VerifyPeer::accept(SSLOptionImplementation &impl) const {
+    impl.visit(*this);
+}
+
 
 Client::Client(const std::vector<std::string> &hostUrlList,
                std::int32_t timeout)
   : impl(new Implementation(hostUrlList, timeout))
 {}
 
+Client::Client(const std::vector<std::string> &hostUrlList,
+               std::int32_t timeout,
+               const std::initializer_list<std::pair<const std::string, std::string>>& proxyUrlList)
+  : impl(new Implementation(hostUrlList, timeout, proxyUrlList))
+{}
 
 Client::Client(Client &&) = default;
 
 Client::~Client() {}
 
 
+void Client::setClientOption(const ClientOption &opt) {
+    impl->setClientOption(opt);
+}
+
+
 cpr::Response Client::performRequest(
         HTTPMethod method, const std::string &urlPath, const std::string &body)
 {
-   return std::move(impl->performRequest(method, urlPath, body));
+   return impl->performRequest(method, urlPath, body);
 }
 
 
@@ -81,11 +157,13 @@ bool Client::Implementation::performRequestOnCurrentHost(Client::HTTPMethod meth
                                                          const std::string &body,
                                                          cpr::Response &response)
 {
-	cpr::Header header;
-	header["content-type"]="application/json; charset=UTF-8";
-    session.SetHeader(header);
     const std::string entireUrl = hostUrlList[currentHostIndex] + urlPath;
-	session.SetUrl(cpr::Url(entireUrl));
+    session.SetUrl(cpr::Url(entireUrl));
+    cpr::Header header;
+    if (!body.empty()) {
+        header["Content-Type"] = "application/json; charset=utf-8";
+    }
+    session.SetHeader(header);
     session.SetBody(cpr::Body(body));
 
     switch (method) {
@@ -113,7 +191,7 @@ bool Client::Implementation::performRequestOnCurrentHost(Client::HTTPMethod meth
             throw std::runtime_error("This HTTP method is not implemented yet.");
     }
 
-    LOG(LogLevel::INFO, "Host returned %d in %lf s for %s.", response.status_code,
+    LOG(LogLevel::INFO, "Host returned %ld in %lf s for %s.", response.status_code,
         response.elapsed, entireUrl.c_str());
 
     LOG(LogLevel::DEBUG, "Host response text: %s", response.text.c_str());
@@ -162,7 +240,7 @@ cpr::Response Client::search(const std::string &indexName,
     fillIndexAndTypeInUrlPath(indexName, false, docType, false, urlPath);
     urlPath << "_search";
     fillRoutingInUrlPath(routing, urlPath);
-    return std::move(impl->performRequest(HTTPMethod::POST, urlPath.str(), body));
+    return impl->performRequest(HTTPMethod::POST, urlPath.str(), body);
 }
 
 
@@ -178,7 +256,7 @@ cpr::Response Client::get(const std::string &indexName,
     }
     urlPath << id;
     fillRoutingInUrlPath(routing, urlPath);
-    return std::move(impl->performRequest(HTTPMethod::GET, urlPath.str()));
+    return impl->performRequest(HTTPMethod::GET, urlPath.str());
 }
 
 
@@ -194,7 +272,7 @@ cpr::Response Client::index(const std::string &indexName,
         urlPath << id;
     }
     fillRoutingInUrlPath(routing, urlPath);
-    return std::move(impl->performRequest(HTTPMethod::POST, urlPath.str(), body));
+    return impl->performRequest(HTTPMethod::POST, urlPath.str(), body);
 }
 
 
@@ -210,7 +288,44 @@ cpr::Response Client::remove(const std::string &indexName,
     }
     urlPath << id;
     fillRoutingInUrlPath(routing, urlPath);
-    return std::move(impl->performRequest(HTTPMethod::DELETE, urlPath.str()));
+    return impl->performRequest(HTTPMethod::DELETE, urlPath.str());
+}
+
+
+void Client::Implementation::visit(const TimeoutOption &opt) {
+    session.SetTimeout(cpr::Timeout{opt.getValue()});
+}
+
+void Client::Implementation::visit(const ConnectTimeoutOption &opt) {
+    session.SetConnectTimeout(cpr::ConnectTimeout{opt.getValue()});
+}
+
+void Client::Implementation::visit(const ProxiesOption &opt) {
+    session.SetProxies(opt.impl->getProxies());
+}
+
+void Client::Implementation::visit(const SSLOption &opt) {
+    session.SetSslOptions(opt.impl->getOptions());
+}
+
+void Client::SSLOption::SSLOptionImplementation::visit(const CertFile &certFile) {
+    sslOptions.SetOption(cpr::ssl::CertFile{std::string{certFile.path}});
+}
+
+void Client::SSLOption::SSLOptionImplementation::visit(const KeyFile &keyFile) {
+    sslOptions.SetOption(cpr::ssl::KeyFile(keyFile.path, keyFile.password));
+}
+
+void Client::SSLOption::SSLOptionImplementation::visit(const CaInfo &caBundle) {
+    sslOptions.SetOption(cpr::ssl::CaInfo(std::string{caBundle.path}));
+}
+
+void Client::SSLOption::SSLOptionImplementation::visit(const VerifyHost &opt) {
+    sslOptions.SetOption(cpr::ssl::VerifyHost{opt.verify});
+}
+
+void Client::SSLOption::SSLOptionImplementation::visit(const VerifyPeer &opt) {
+    sslOptions.SetOption(cpr::ssl::VerifyPeer{opt.verify});
 }
 
 

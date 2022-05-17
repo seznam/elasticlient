@@ -13,6 +13,13 @@ add_library(${ELASTICLIENT_LIBRARY} SHARED
             "${ELASTICLIENT_INCLUDE_DIR}/elasticlient/bulk.h"
             "${ELASTICLIENT_INCLUDE_DIR}/elasticlient/scroll.h")
 
+if(BUILD_SHARED_LIBS)
+    set_target_properties(${ELASTICLIENT_LIBRARY}
+                          PROPERTIES
+                              VERSION "${ELASTICLIENT_VERSION_MAJOR}.${ELASTICLIENT_VERSION_MINOR}.${ELASTICLIENT_VERSION_PATCH}"
+                              SOVERSION ${ELASTICLIENT_VERSION_MAJOR})
+endif()
+
 target_link_libraries(${ELASTICLIENT_LIBRARY}
                       ${JSONCPP_LIBRARIES}
                       ${CPR_LIBRARIES})

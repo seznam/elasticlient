@@ -14,6 +14,10 @@ int main() {
     // Prepare Client for nodes of one Elasticsearch cluster
     elasticlient::Client client({"http://elastic1.host:9200/"}); // last / is mandatory
 
+    // Or if you'd like to use proxy
+    //elasticlient::Client client({"http://elastic1.host:9200/"}, 6000,
+    //        {{"http", "http://proxy.host:8080"},{"https", "https://proxy.host:8080"}});
+
     std::string document {"{\"message\": \"Hello world!\"}"};
 
     // Index the document, index "testindex" must be created before

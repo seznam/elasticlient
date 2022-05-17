@@ -6,6 +6,7 @@
 #include <sstream>
 #include <iostream>
 #include <vector>
+#include <mutex>
 #include <json/json.h>
 #include <cpr/cpr.h>
 #include <httpmockserver/mock_server.h>
@@ -42,19 +43,66 @@ namespace elasticlient {
 
 class HTTPMock: public httpmock::MockServer {
   public:
-    explicit HTTPMock(unsigned port): httpmock::MockServer(port) {}
+    /// Struct for holding data from server call
+    struct CallData {
+        std::string url;
+        std::string method;
+        std::string data;
+
+        CallData(): url(), method(), data() {}
+
+        CallData(const std::string &url, const std::string &method, const std::string &data)
+          : url(url), method(method), data(data)
+        {}
+    };
+
+    explicit HTTPMock(unsigned port)
+      : httpmock::MockServer(port), lastCallData(), lastCallDataMutex()
+    {}
+
+    /// Safely return `lastCallData`
+    CallData getLastCallData() {
+        std::lock_guard<std::mutex> guard(lastCallDataMutex);
+        return lastCallData;
+    }
+
   private:
+    /// Stored data from last call to the server
+    CallData lastCallData;
+    /// Mutex for lastCallData
+    std::mutex lastCallDataMutex;
+
     Response responseHandler(
             const std::string &url,
             const std::string &method,
             const std::string &data,
             const std::vector<UrlArg> &,
-            const std::vector<Header> &)
+            const std::vector<Header> &headers)
     {
         LOG(LogLevel::INFO, "Mock HTTP `%s` method `%s` called with %lu bytes of data.",
             method.c_str(), url.c_str(), data.size());
         LOG(LogLevel::INFO, "Mock HTTP data: `%s`.", data.c_str());
 
+        {
+            std::lock_guard<std::mutex> guard(lastCallDataMutex);
+            lastCallData = CallData(url, method, data);
+        }
+
+        // Strictly check when JSON content type header was sent when body is not empty
+        if (!data.empty()) {
+            bool jsonHeaderSent = false;
+            for (const Header &header : headers) {
+                if (header.key == "Content-Type"
+                    && header.value == "application/json; charset=utf-8")
+                {
+                    jsonHeaderSent = true;
+                    break;
+                }
+            }
+            if (!jsonHeaderSent) {
+                return Response(500, "JSON HTTP header not found when body was set!");
+            }
+        }
 
         // Mocked basic search
         if (method =="POST" && matchesPrefix(url, "/indexA/typeA/_search")) {
@@ -65,15 +113,15 @@ class HTTPMock: public httpmock::MockServer {
             return Response(202, data);
         }
         // Mocked get document
-        if (method =="GET" && url =="/indexA/typeA/123") {
+        if (method =="GET" && url == "/indexA/typeA/123") {
             return Response(200, "GET_OK");
         }
         // Mocked index new document
-        if (method =="POST" && url =="/indexA/typeA/321") {
+        if (method =="POST" && url == "/indexA/typeA/321") {
             return Response(203, data);
         }
         // Mocked remove document
-        if (method =="DELETE" && url =="/indexA/typeA/321") {
+        if (method =="DELETE" && url == "/indexA/typeA/321") {
             return Response(200, "REMOVE_OK");
         }
         // Always return status 500 for /bulk_basics testcase
@@ -84,22 +132,21 @@ class HTTPMock: public httpmock::MockServer {
         if (matchesPrefix(url, "/test_scroll_ok*/fake_index/_search")) {
             return Response(200, createScrollResponse("A0", false, 2, 2, 0));
         }
-        // Mocked scroll next page
-        if (method =="POST" && matchesPrefix(url, "/_search/scroll")) {
-            if(data == "A0") {
-                return Response(200, createScrollResponse("A1", false, 3, 2, 0));
-            }
-            else if(data == "A1") {
-                return Response(200, createScrollResponse("A2", false, 0, 2, 0));
-            }
-            else if(data == "A2") {
-                return Response(404, createScrollResponse("A3", false, 0, 1, 1));
-            }
-        }
-        // Mocked scroll remove
-        if (method == "DELETE" && matchesPrefix(url, "/_search/scroll")) {
-            if(data == "A2") {;
-                return Response(500, "{}");
+        // Mocked another scroll stuff
+        if (matchesPrefix(url, "/_search/scroll")) {
+            // Mocked scroll next page
+            if (method == "POST") {
+                const std::string scrollId = parseJSONData(data)["scroll_id"].asString();
+                if (scrollId == "A0") {
+                   return Response(200, createScrollResponse("A1", false, 3, 2, 0));
+                } else if (scrollId == "A1") {
+                    return Response(200, createScrollResponse("A2", false, 0, 2, 0));
+                } else if (scrollId == "A2") {
+                    return Response(404, createScrollResponse("A3", false, 0, 1, 1));
+                }
+            // Mocked scroll remove
+            } else if (method == "DELETE") {
+                return Response(200, "{}");
             }
         }
 
@@ -215,6 +262,11 @@ TEST_F(ElasticlientTest, bulkInternal) {
         "{\"index\": {\"_type\": \"type1\", \"_id\": \"1\"}}",
         createControl("index", "type1", "1"));
 
+    // check with empty Id field
+    ASSERT_EQ(
+        "{\"index\": {\"_type\": \"type1\"}}",
+        createControl("index", "type1", ""));
+
     // Create bulk with two elements
     SameIndexBulkData bulk("my_index");
     ASSERT_TRUE(bulk.empty());
@@ -262,12 +314,28 @@ TEST_F(ElasticlientTest, scroll) {
     ASSERT_EQ(0, hits["hits"].size());
     ASSERT_FALSE(scrollInstance.next(hits));
     scrollInstance.clear();
+
+    HTTPMock *httpMock = dynamic_cast<HTTPMock*>(
+        mock_server_env->getMock().operator->().get());
+
+    // Check if scroll DELETE was sent properly
+    HTTPMock::CallData lastCallData = httpMock->getLastCallData();
+    ASSERT_EQ("/_search/scroll/", lastCallData.url);
+    ASSERT_EQ("DELETE", lastCallData.method);
+    ASSERT_EQ("{\"scroll_id\": [\"A2\"]}", lastCallData.data);
+
     scrollInstance.init("test_scroll_ok*", "fake_index", "{}");
     ASSERT_TRUE(scrollInstance.next(hits));
     ASSERT_EQ(2, hits["hits"].size());
     ASSERT_TRUE(scrollInstance.next(hits));
     ASSERT_EQ(3, hits["hits"].size());
     scrollInstance.clear();
+    // Check if scroll DELETE was sent properly
+    lastCallData = httpMock->getLastCallData();
+    ASSERT_EQ("/_search/scroll/", lastCallData.url);
+    ASSERT_EQ("DELETE", lastCallData.method);
+    ASSERT_EQ("{\"scroll_id\": [\"A1\"]}", lastCallData.data);
+
     ASSERT_FALSE(scrollInstance.next(hits));
 }
 

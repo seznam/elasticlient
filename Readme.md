@@ -57,6 +57,7 @@ Following CMake configuration variables may be passed right before `..` in `cmak
 * `-DUSE_SYSTEM_HTTPMOCKSERVER=YES`  - use C++ HTTP mock server library from system (default=NO)
 * `-DBUILD_ELASTICLIENT_TESTS=YES`  - build elasticlient library tests (default=YES)
 * `-DBUILD_ELASTICLIENT_EXAMPLE=YES`  - build elasticlient library example hello-world program (default=YES)
+* `-DBUILD_SHARED_LIBS=YES`  - build as a shared library (default=YES)
 
 ## How to use
 ###### Basic Hello world example
@@ -209,6 +210,44 @@ int main() {
     // use this logging feature!
 }
 ```
+
+## Elasticlient connection settings
+
+To setup various settings for the connection, option arguments can be passed into constructor.
+```cpp
+    // Prepare Client for nodes of one Elasticsearch cluster.
+    // Various options could be passed into it - vector of the cluster nodes must be first
+    // but the rest of the arguments is order independent, and each is optional.
+    elasticlient::Client client(
+            {"http://elastic1.host:9200/"},
+            elasticlient::Client::TimeoutOption{30000},
+            elasticlient::Client::ConnectTimeoutOption{1000},
+            elasticlient::Client::ProxiesOption(
+                    {{"http", "http://proxy.host:8080"},
+                     {"https", "https://proxy.host:8080"}})
+    );
+
+    // each of these options can be set later as well
+    elasticlient::Client::SSLOption sslOptions {
+            elasticlient::Client::SSLOption::VerifyHost{true},
+            elasticlient::Client::SSLOption::VerifyPeer{true},
+            elasticlient::Client::SSLOption::CaInfo{"myca.pem"},
+            elasticlient::Client::SSLOption::CertFile{"mycert.pem"},
+            elasticlient::Client::SSLOption::KeyFile{"mycert-key.pem"}};
+    client.setClientOption(std::move(sslOptions));
+    client.setClientOption(elasticlient::Client::TimeoutOption{300000});
+```
+
+Currently supported options:
+* `Client::TimeoutOption` - HTTP request timeout in ms.
+* `Client::ConnectTimeoutOption` - Connect timeout in ms.
+* `Client::ProxiesOption` - Proxy server settings.
+* `Client::SSLOption`
+  * `Client::SSLOption::CertFile` - path to the SSL certificate file.
+  * `Client::SSLOption::KeyFile` - path to the SSL certificate key file.
+  * `Client::SSLOption::CaInfo` - path to the CA bundle if custom CA is used.
+  * `Client::SSLOption::VerifyHost` - verify the certificate's name against host.
+  * `Client::SSLOption::VerifyPeer` - verify the peer's SSL certificate.
 
 ## License
 Elasticlient is licensed under the MIT License (MIT). Only the [cmake/Modules/FindJsonCpp.cmake](cmake/Modules/FindJsonCpp.cmake) is originally licensed
