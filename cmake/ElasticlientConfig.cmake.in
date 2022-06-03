@@ -1,0 +1,69 @@
+# - Config file for the Elasticlient package
+# It defines the following variables
+#  Elasticlient_INCLUDE_DIR  - elasticlient include directory
+#  Elasticlient_INCLUDE_DIRS - include directories with dependencies
+#  Elasticlient_LIBRARIES    - libraries to link against (including externals)
+#  Elasticlient_LIBRARY_DIR  - library directory
+
+# ======================================================
+#  Version variables:
+# ======================================================
+SET(Elasticlient_VERSION "@ELASTICLIENT_VERSION_MAJOR@.@ELASTICLIENT_VERSION_MINOR@.@ELASTICLIENT_VERSION_PATCH@")
+SET(Elasticlient_VERSION_MAJOR  @ELASTICLIENT_VERSION_MAJOR@)
+SET(Elasticlient_VERSION_MINOR  @ELASTICLIENT_VERSION_MINOR@)
+SET(Elasticlient_VERSION_PATCH  @ELASTICLIENT_VERSION_PATCH@)
+
+IF(DEFINED Elasticlient_FIND_QUIETLY)
+  SET(ELASTICLIENT_FIND_QUIETLY ${Elasticlient_FIND_QUIETLY})
+ENDIF()
+
+if(NOT Elasticlient_FIND_QUIETLY)
+  message(STATUS "Looking for package Elasticlient")
+endif()
+
+set(WITH_SYSTEM_JSONCPP @USE_SYSTEM_JSONCPP@)
+if(WITH_SYSTEM_JSONCPP)
+    find_package(JsonCpp REQUIRED)
+    if(NOT JSONCPP_FOUND)
+        message(FATAL_ERROR "JsonCpp library not found.")
+    endif()
+else(NOT JSONCPP_FOUND)
+    set(JSONCPP_WITH_TESTS NO CACHE BOOL "")
+    set(JSONCPP_FOUND TRUE)
+    set(JSONCPP_LIBRARY jsoncpp)
+    set(JSONCPP_INCLUDE_DIRS @CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_INCLUDEDIR@)
+endif()
+set(JSONCPP_LIBRARIES ${JSONCPP_LIBRARY} CACHE INTERNAL "")
+set(JSONCPP_INCLUDE_DIRS ${JSONCPP_INCLUDE_DIRS} CACHE INTERNAL "")
+
+# Compute paths
+set(Elasticlient_INCLUDE_DIR @CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_INCLUDEDIR@)
+set(Elasticlient_INCLUDE_DIRS ${Elasticlient_INCLUDE_DIR} ${CPR_INCLUDE_DIRS} ${JSONCPP_INCLUDE_DIRS})
+set(Elasticlient_LIBRARY_DIR @CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_LIBDIR@)
+set(Elasticlient_LIBRARY @ELASTICLIENT_LIBRARY@)
+set(Elasticlient_LIBRARIES @ELASTICLIENT_LIBRARIES@)
+
+SET(Elasticlient_FOUND TRUE)
+foreach(l ${Elasticlient_LIBRARIES})
+  UNSET(${l}_LIBRARY CACHE)
+  get_filename_component(LIB_NAME ${l} NAME CACHE INTERNAL "")
+  get_filename_component(LIB_DIR ${l} DIRECTORY CACHE INTERNAL "")
+  if(${l} STREQUAL ${LIB_NAME})
+    # nothing to do
+  elseif(NOT ${LIB_DIR} STREQUAL "")
+    set(l ${LIB_NAME})
+  endif()
+  find_library(${l}_LIBRARY NAMES ${l} PATHS ${Elasticlient_LIBRARY_DIR} ${LIB_DIR})
+  set(${l}_LIBRARY ${${l}_LIBRARY} CACHE PATH "full path to library ${l}")
+  if("${${l}_LIBRARY}" STREQUAL "${l}_LIBRARY-NOTFOUND")
+    UNSET(Elasticlient_FOUND CACHE)
+    SET(Elasticlient_FOUND FALSE)
+      message(STATUS "Lib ${l} not found")
+  else()
+    if(NOT Elasticlient_FIND_QUIETLY)
+      message(STATUS "  Lib ${l} found here : ${${l}_LIBRARY}")
+    endif()
+  endif()
+endforeach()
+
+
