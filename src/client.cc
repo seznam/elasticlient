@@ -148,7 +148,7 @@ void Client::setClientOption(const ClientOption &opt) {
 cpr::Response Client::performRequest(
         HTTPMethod method, const std::string &urlPath, const std::string &body)
 {
-   return impl->performRequest(method, urlPath, body);
+   return std::move(impl->performRequest(method, urlPath, body));
 }
 
 
@@ -157,13 +157,11 @@ bool Client::Implementation::performRequestOnCurrentHost(Client::HTTPMethod meth
                                                          const std::string &body,
                                                          cpr::Response &response)
 {
+	cpr::Header header;
+	header["content-type"]="application/json; charset=UTF-8";
+    session.SetHeader(header);
     const std::string entireUrl = hostUrlList[currentHostIndex] + urlPath;
     session.SetUrl(cpr::Url(entireUrl));
-    cpr::Header header;
-    if (!body.empty()) {
-        header["Content-Type"] = "application/json; charset=utf-8";
-    }
-    session.SetHeader(header);
     session.SetBody(cpr::Body(body));
 
     switch (method) {
@@ -240,7 +238,7 @@ cpr::Response Client::search(const std::string &indexName,
     fillIndexAndTypeInUrlPath(indexName, false, docType, false, urlPath);
     urlPath << "_search";
     fillRoutingInUrlPath(routing, urlPath);
-    return impl->performRequest(HTTPMethod::POST, urlPath.str(), body);
+    return std::move(impl->performRequest(HTTPMethod::POST, urlPath.str(), body));
 }
 
 
@@ -256,7 +254,7 @@ cpr::Response Client::get(const std::string &indexName,
     }
     urlPath << id;
     fillRoutingInUrlPath(routing, urlPath);
-    return impl->performRequest(HTTPMethod::GET, urlPath.str());
+    return std::move(impl->performRequest(HTTPMethod::GET, urlPath.str()));
 }
 
 
@@ -272,7 +270,7 @@ cpr::Response Client::index(const std::string &indexName,
         urlPath << id;
     }
     fillRoutingInUrlPath(routing, urlPath);
-    return impl->performRequest(HTTPMethod::POST, urlPath.str(), body);
+    return std::move(impl->performRequest(HTTPMethod::POST, urlPath.str(), body));
 }
 
 
@@ -288,7 +286,7 @@ cpr::Response Client::remove(const std::string &indexName,
     }
     urlPath << id;
     fillRoutingInUrlPath(routing, urlPath);
-    return impl->performRequest(HTTPMethod::DELETE, urlPath.str());
+    return std::move(impl->performRequest(HTTPMethod::DELETE, urlPath.str()));
 }
 
 
