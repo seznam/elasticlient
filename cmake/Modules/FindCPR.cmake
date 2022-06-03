@@ -10,15 +10,29 @@
 #                     to cpr.h, which must be included in every
 #                     file that uses this interface
 
+include(FindPackageHandleStandardArgs)
+
+# Checks an environment variable; note that the first check
+# does not require the usual CMake $-sign.
+IF( DEFINED ENV{CPR_DIR} )
+  SET( CPR_DIR "$ENV{CPR_DIR}" )
+ENDIF()
+
 find_path(CPR_INCLUDE_DIR
-          NAMES cpr.h cpr/cpr.h)
+          NAMES cpr.h cpr/cpr.h
+          NO_DEFAULT_PATH
+          HINTS ${CPR_DIR}
+          PATH_SUFFIXES include)
 
 find_library(CPR_LIBRARY
              NAMES cpr
-             HINTS ${CPR_LIBRARY_ROOT})
+             NO_DEFAULT_PATH
+             HINTS ${CPR_LIBRARY_ROOT}
+                   ${CPR_DIR}
+             PATH_SUFFIXES lib)
 
-include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(CPR REQUIRED_VARS CPR_LIBRARY CPR_INCLUDE_DIR)
+mark_as_advanced(CPR_LIBRARY CPR_INCLUDE_DIR)
 
 if(CPR_FOUND)
     set(CPR_LIBRARIES ${CPR_LIBRARY} CACHE INTERNAL "")
